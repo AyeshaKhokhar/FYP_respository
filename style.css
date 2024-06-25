@@ -257,3 +257,73 @@ header .trip_bx .travel_bx .cards .card .btn_city h5 span{
    font-size: 13px;
    font-weight: 700;
 }
+.body1{
+    background: url('White\ Black\ Minimalist\ Natural\ Light\ Room\ Zoom\ Background\ \(3\).jpg');
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    margin-top: 17%;
+    max-height: 5%;
+}
+
+.section__container {
+    max-width: var(--max-width);
+    margin: auto;
+    /* margin-top: 20%; */
+    padding: 50rem 30rem;
+  }
+  
+  .section__subheader {
+    margin-bottom: 0.5rem;
+    position: relative;
+    font-weight: 500;
+    letter-spacing: 2px;
+    color: var(--text-dark);
+  }
+  
+  .section__subheader::after {
+    position: absolute;
+    content: "";
+    top: 50%;
+    transform: translate(1rem, -50%);
+    height: 2px;
+    width: 4rem;
+    background-color: var(--primary-color);
+  }
+  
+  .section__header {
+    max-width: 600px;
+    margin-bottom: 1rem;
+    font-size: 1.7rem;
+    font-weight: 600;
+    line-height: 3rem;
+    color: var(--text-dark);
+  }
+  
+  .section__description {
+    max-width: 600px;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    color: var(--text-light);
+  }
+  
+  .btn {
+    padding: 0.75rem 1.5rem;
+    outline: none;
+    border: none;
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--white);
+    background-color: var(--primary-color);
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+  
+  .btn:hover {
+    background-color: var(--primary-color-dark);
+  }
+  
+  img {
+    width: 85%;
+    display: flex;
+  }
