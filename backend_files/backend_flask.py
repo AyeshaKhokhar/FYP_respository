@@ -33,3 +33,27 @@ def fetch_all_data():
          
     print("Sending response:", hotel_details)  # Debug response data
     return hotel_details
+
+def fetch_recommend_data(df_recommendations):
+    hotel_names = df_recommendations['hotel_name'].tolist()
+    print("hoetls:", hotel_names)
+
+    connection = get_db_connection()
+    cursor = connection.cursor(dictionary=True)
+        
+    hotel_details = []
+    for hotel_name in hotel_names:
+        cursor.execute('''
+            SELECT hotel_name, hotel_city, review_score, hotel_price, hotel_pic
+            FROM hotel_info
+            WHERE hotel_name = %s
+            ''', (hotel_name,))
+        result = cursor.fetchone()
+        if result:
+            hotel_details.append(result)
+        
+    cursor.close()
+    connection.close()
+         
+    print("Sending response:", hotel_details)  # Debug response data
+    return hotel_details
