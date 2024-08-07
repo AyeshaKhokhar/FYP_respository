@@ -148,3 +148,136 @@ def main_product():
         # Fetch all hotel data
         hotel_details = fetch_all_data()
         return render_template('main_pro2.html', hotel_details=hotel_details)
+    
+
+@app.route('/detail_page', methods=['POST'])
+def detail_page():
+    hotel_name = request.form.get('hotel_name')
+    destination = request.form.get('destination')
+    date = request.form.get('date')
+    people = request.form.get('people')
+    
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    
+    # Fetch hotel details
+    cursor.execute('''
+        SELECT hotel_id, hotel_name, hotel_link, room_pic, facilities, hotel_desc, review_score, total_review, hotel_loc, hotel_map
+        FROM hotel_info
+        WHERE hotel_name = %s
+    ''', (hotel_name,))
+    hotel = cursor.fetchone()
+    
+    if hotel:
+        hotel_id = hotel['hotel_id']
+        room_pics = hotel['room_pic'].split(', ')
+        facilities_str = hotel['facilities']
+        
+        # Split facilities string into a list
+        facilities = facilities_str.split('  ')
+        
+        # Fetch all facility icons at once
+        placeholders = ', '.join(['%s'] * len(facilities))
+        cursor.execute(f'''
+            SELECT icon_name, icon_pic
+            FROM icon_detail
+            WHERE icon_name IN ({placeholders})
+        ''', tuple(facilities))
+        icons = cursor.fetchall()
+        
+        # Create a dictionary for easy lookup
+        facility_icons = {icon['icon_name']: icon['icon_pic'] for icon in icons}
+        print(facility_icons)
+        # Prepare the facility list for the template
+        facility_icon_list = []
+        for facility in facilities:
+            if facility in facility_icons:
+                facility_icon_list.append({
+                    'name': facility,
+                    'pic': facility_icons[facility]
+                })
+        
+        # Step 3: Fetch room details using hotel_id
+        cursor.execute('''
+            SELECT room_id, room_name, room_price, room_desc, bed_quantity, room_fac
+            FROM room_details
+            WHERE hotel_id = %s
+        ''', (hotel_id,))
+        rooms = cursor.fetchall()
+        
+        print(rooms)
+        
+        
+        # for finding aspect base review analysis
+        reviews = fetch_reviews(hotel_name)
+        aspect_scores = calculate_aspect_scores(reviews)
+        print(aspect_scores)
+        
+        # for all reviews data
+        reviews = fetch_all_review(hotel_name)
+       
+        truncated_reviews = []
+        for review in reviews:
+            truncated_review = truncate_review(review['review'])
+            truncated_reviews.append({
+                'review': truncated_review,
+                'reviewerName': review['reviewerName'],
+                'reviewTime': review['reviewTime']
+            })
+
+        
+        # Create a list to store room facilities with icons
+        room_list = []
+        for room in rooms:
+            room_facilities_str = room['room_fac']
+            if room_facilities_str:
+                room_facilities = [facility.strip() for facility in room_facilities_str.split(',')]
+                
+                # Fetch icons for room facilities
+                placeholders = ', '.join(['%s'] * len(room_facilities))
+                cursor.execute(f'''
+                    SELECT icon_name, icon_pic
+                    FROM icon_detail
+                    WHERE icon_name IN ({placeholders})
+                ''', tuple(room_facilities))
+                room_icons = cursor.fetchall()
+                
+                # Create a dictionary for room facility icons
+                room_facility_icons = {icon['icon_name'].strip(): icon['icon_pic'] for icon in room_icons}
+                
+                # Prepare the facility list with icons for the room
+                room_facility_icon_list = []
+                for facility in room_facilities:
+                    if facility in room_facility_icons:
+                        room_facility_icon_list.append({
+                            'name': facility,
+                            'pic': room_facility_icons[facility]
+                        })
+                
+                # Append room details with facilities
+                room_list.append({
+                    'name': room['room_name'],
+                    'price': room['room_price'],
+                    'description': room['room_desc'],
+                    'bed_quantity': room['bed_quantity'],
+                    'facilities': room_facility_icon_list
+                })
+        
+        print(f"Room list prepared: {room_list}")
+        
+        cursor.close()
+        conn.close()
+        # Pass data to template
+        return render_template('detail-product1.html', 
+                               hotel=hotel,
+                               room_pics=room_pics,
+                               facility_icons=facility_icon_list,
+                               destination=destination,
+                               date=date,
+                               people=people,
+                               aspect_scores=aspect_scores,
+                               reviews=truncated_reviews, 
+                               rooms=room_list
+                               )
+    else:
+        return "Hotel not found", 404
