@@ -1,6 +1,9 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
 import mysql.connector
 from recommender2 import recommend_hotels
+import nltk
+from nltk.tokenize import word_tokenize
+from textblob import TextBlob
 
 app = Flask(__name__)
 
@@ -148,7 +151,61 @@ def main_product():
         # Fetch all hotel data
         hotel_details = fetch_all_data()
         return render_template('main_pro2.html', hotel_details=hotel_details)
+
+
+def fetch_all_review(hotel_name):
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT review, reviewerName, reviewTime FROM hotel_review_data1 WHERE hotelName=%s", (hotel_name,))
+    reviews = cursor.fetchall()
+    conn.close()
+    return reviews
+
+def truncate_review(review_text, num_words=20):
+    words = review_text.split()
+    return ' '.join(words[:num_words]) + ('...' if len(words) > num_words else '')
+
+
+def fetch_reviews(hotel_name):
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT review FROM hotel_review_data1 WHERE hotelName=%s", (hotel_name,))
+    reviews = cursor.fetchall()
+    conn.close()
+    return [review['review'] for review in reviews]
+
+# Function to extract aspects from review
+aspects = ["room", "facilities", "comfort", "staff",  "cleanliness"]
+
+def extract_aspects(review):
+    words = word_tokenize(review.lower())
+    return [aspect for aspect in aspects if aspect in words]
+
+# Function to perform sentiment analysis
+def analyze_sentiment(review):
+    blob = TextBlob(review)
+    return blob.sentiment.polarity
+
+# Function to convert sentiment to score
+def sentiment_to_score(polarity):
+    return (polarity + 1) * 5
+
+# Function to calculate aspect scores
+def calculate_aspect_scores(reviews):
+    aspect_scores = {aspect: [] for aspect in aspects}
     
+    for review in reviews:
+        review_aspects = extract_aspects(review)
+        sentiment = analyze_sentiment(review)
+        score = sentiment_to_score(sentiment)
+        
+        for aspect in review_aspects:
+            aspect_scores[aspect].append(score)
+    
+    average_scores = {aspect: (sum(scores) / len(scores) if scores else None) 
+                      for aspect, scores in aspect_scores.items()}
+    
+    return average_scores
 
 @app.route('/detail_page', methods=['POST'])
 def detail_page():
