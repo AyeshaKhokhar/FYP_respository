@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard</title>
+    <link rel="stylesheet" href="user.css">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="dashboard">
+        <div class="left-panel">
+            <div class="logo-container">
+                <img src="logo1.png" alt="Logo" class="logo">
+            </div>
+            <h2>User Dashboard</h2>
+            <button onclick="showSection('dashboard-section')"><i class="fa fa-chart-bar"></i>Dashboard</button>
+            <button onclick="showSection('list-hotel-form')"><i class="fa fa-list"></i> List Hotel</button>
+            <button onclick="showSection('update-hotel-form')"><i class="fa fa-edit"></i>Update Hotel</button>
+            <button onclick="showSection('your-hotels-section')"> <i class="fa fa-hotel"></i> Your Hotels</button>
+            <button onclick="showSection('account-form')"> <i class="fa fa-user"></i>Account</button>
+            <button onclick="location.href='#'">- Move to Web -</button>
+        </div>
+        <div class="right-panel">
+            <div id="dashboard-section">
+                <div class="stats">
+                    <div class="stat-item">
+                        <i class="fas fa-hotel"></i>
+                        <span id="total-listed">10</span>
+                        <p>Total Listed Hotels</p>
+                    </div>
+                    <div class="stat-item">
+                        <i class="fas fa-check"></i>
+                        <span id="total-approved">8</span>
+                        <p>Total Approved Hotels</p>
+                    </div>
+                    <div class="stat-item">
+                        <i class="fas fa-medal"></i>
+                        <span id="total-approved">8</span>
+                        <p>Top Rank Hotels</p>
+                    </div>
+                    <div class="stat-item">
+                        <i class="fas fa-times"></i>
+                        <span id="total-declined">2</span>
+                        <p>Total Declined Hotels</p>
+                    </div>
+                </div>
+                <h2>Hotel Rating Scores</h2>
+                <div id="rating-graph-container">
+                    <canvas id="rating-graph"></canvas>
+                </div>
+            </div>
+            <div id="list-hotel-form" class="form-container" style="display:none;">
+                <h3>List a New Hotel!</h3>
+                <form>
+                    <label for="hotel-name">Hotel Name:</label>
+                    <input type="text" id="hotel-name" name="hotel-name" required>
+                    <label for="city">City</label>
+                    <input type="text" id="city" name="city" placeholder="hotel city" required>
+                    <label for="hotel-location">Location:</label>
+                    <input type="text" id="hotel-location" name="hotel-location" required>
+                    <label for="hotel-rating">Rating:</label>
+                    <input type="number" id="hotel-rating" name="hotel-rating" min="1" max="5" required>
+                    <label for="googleMapLink">Google Map Link </label>
+                    <input type="url" id="googleMapLink" name="googleMapLink" placeholder="hotel map location">
+                    <label for="embeddedCode">Embedded Code from Google Map</label>
+                    <textarea id="embeddedCode" name="embeddedCode" rows="4" required></textarea>
+                    <label>Facilities <span class="required-star">*</span></label>
+                        <div class="checkbox-group">
+                            <label><input type="checkbox" name="facilities" value="wifi"> WiFi</label>
+                            <label><input type="checkbox" name="facilities" value="parking"> Parking</label>
+                            <label><input type="checkbox" name="facilities" value="pool"> Pool</label>
+                            <label><input type="checkbox" name="facilities" value="gym"> Gym</label>
+                            <label><input type="checkbox" name="facilities" value="spa"> Spa</label>
+                            <label><input type="checkbox" name="facilities" value="restaurant"> Restaurant</label>
+                            <label><input type="checkbox" name="facilities" value="gym"> Gym</label>
+                            <label><input type="checkbox" name="facilities" value="spa"> Spa</label>
+                            <label><input type="checkbox" name="facilities" value="restaurant"> Restaurant</label>
+                        </div>
+                    <label for="hotel-description">Description:</label>
+                    <textarea id="hotel-description" name="hotel-description" required></textarea>
+                    <label for="totalRooms">Room Name</label>
+                    <input type="text" id="totalRooms" name="totalRooms" placeholder="Enter Room name" required>
+                    <label for="bedSize">Bed Size <span class="required-star">*</span></label>
+                        <select id="bedSize" name="bedSize" required>
+                            <option value="single">Single Bed</option>
+                            <option value="double">Double Bed</option>
+                            <option value="extra-large">Extra Large Bed</option>
+                        </select>
+                    <label>Room Facilities <span class="required-star">*</span></label>
+                        <div class="checkbox-group">
+                            <label><input type="checkbox" name="facilities" value="wifi"> WiFi</label>
+                            <label><input type="checkbox" name="facilities" value="parking"> Parking</label>
+                            <label><input type="checkbox" name="facilities" value="pool"> Pool</label>
+                            <label><input type="checkbox" name="facilities" value="gym"> Gym</label>
+                            <label><input type="checkbox" name="facilities" value="spa"> Spa</label>
+                            <label><input type="checkbox" name="facilities" value="restaurant"> Restaurant</label>
+                            <label><input type="checkbox" name="facilities" value="gym"> Gym</label>
+                            <label><input type="checkbox" name="facilities" value="spa"> Spa</label>
+                            <label><input type="checkbox" name="facilities" value="restaurant"> Restaurant</label>
+                    </div>    
+                    <label for="roomDetails">Room Details </label>
+                    <textarea id="roomDetails" name="roomDetails" rows="4" placeholder="Enter room descrption"required></textarea>
+                    <label for="hotelImages">Hotel Images (up to 7) </label>
+                    <input type="file" id="hotelImages" name="hotelImages" accept="image/*" multiple required>
+                    <label for="hotelMainImage">Hotel Main Image</label>
+                    <input type="file" id="hotelMainImage" name="hotelMainImage" accept="image/*" required>
+                    <button type="submit">Submit</button>
+                </form>
+            </div>
+            <div id="update-hotel-form" class="form-container" style="display:none;">
+                <h3>Update Hotel Information</h3>
+                <form>
+                    <label for="hotel-id">Hotel ID:</label>
+                    <input type="text" id="hotel-id" name="hotel-id" required>
+                    <label for="update-hotel-name">Hotel Name:</label>
+                    <input type="text" id="update-hotel-name" name="update-hotel-name" required>
+                    <label for="update-hotel-location">Location:</label>
+                    <input type="text" id="update-hotel-location" name="update-hotel-location" required>
+                    <label for="update-hotel-rating">Rating:</label>
+                    <input type="number" id="update-hotel-rating" name="update-hotel-rating" min="1" max="5" required>
+                    <label for="hotelMainImage">Hotel Image</label>
+                    <input type="file" id="hotelMainImage" name="hotelMainImage" accept="image/*" required>
+                    <label for="update-hotel-description">Description:</label>
+                    <textarea id="update-hotel-description" name="update-hotel-description" required></textarea>
+                    <button type="submit">Update</button>
+                </form>
+            </div>
+            <div id="your-hotels-section" style="display:none;">
+                <h3>Your listed Hotels</h3>
+                <table id="hotels-table">
+                    <thead>
+                        <tr>
+                            <th>Hotel Name</th>
+                            <th>Rating</th>
+                            <th>Listed On</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Hotel A</td>
+                            <td>4.5</td>
+                            <td>2024-08-01</td>
+                            <td>
+                                <button class="view-btn">View</button>
+                                <button class="delete-btn">Delete</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Hotel B</td>
+                            <td>3.7</td>
+                            <td>2024-07-15</td>
+                            <td>
+                                <button class="view-btn">View</button>
+                                <button class="delete-btn">Delete</button>
+                            </td>
+                        </tr>
+                        <!-- Add more hotel rows here -->
+                    </tbody>
+                </table>
+            </div>
+            <div id="account-form" class="form-container" style="display:none;">
+                <h3>Update Your Account </h3>
+                <form>
+                    <label for="name">Name</label>
+                    <input type="text" id="name" name="name" required>
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" placeholder="abc@gmail.con" required>
+                    <label for="password">Password </label>
+                    <input type="password" id="password" name="password" placeholder="Password must be strong" required>
+                        <div class="error-message" id="passwordError"></div>
+                    <label for="address">Address</label>
+                    <input type="text" id="address" name="address" placeholder="enter your address" required>
+                    <button type="submit">Update</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="user.js"></script>
+</body>
+</html>

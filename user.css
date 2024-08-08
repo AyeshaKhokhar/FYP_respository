@@ -1,0 +1,207 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #ffffff;
+}
+
+.dashboard {
+    display: flex;
+    height: 100vh;
+}
+
+.left-panel {
+    background-color: #000000;
+    color: #ecf0f1;
+    padding: 20px;
+    width: 180px;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.logo-container {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.logo {
+    filter: brightness(0) invert(1);
+    height: 60px;
+}
+
+
+
+.left-panel h2, .left-panel h3 {
+    text-align: center;
+}
+
+.left-panel button {
+    display: block;
+    background-color: #d68b49;
+    color: #fff;
+    border: none;
+    font-size: 16px;
+    padding: 10px;
+    margin: 15px 0;
+    width: 100%;
+    cursor: pointer;
+    border-radius: 15px;
+}
+
+.left-panel button:hover {
+    background-color: #f49e52;
+}
+.left-panel h2 {
+    text-align: center;
+    font-size: 18px;
+    margin-bottom: 20%;
+}
+
+.right-panel {
+    flex-grow: 1;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.right-panel .stats {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 20px;
+}
+
+.stat-item {
+    background-color: #fffbf7;
+    padding: 10px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    flex: 1;
+    margin: 0 10px;
+}
+
+.stat-item i {
+    font-size: 2em;
+    color: #d68b49;
+    margin-bottom: 10px;
+}
+
+.stat-item span {
+    display: block;
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+#rating-graph-container {
+    background-color: #fdfcfc;
+    border: 1px solid #bdc3c7;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    height: 250px;
+}
+
+#rating-graph {
+    height: 100%;
+}
+
+.checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: 2%;
+    margin-left: 30%;
+}
+
+.checkbox-group label {
+    display: flex;
+    /* align-items: center; */
+    /* Adjust spacing between checkboxes if needed */
+}
+
+.form-container {
+    background-color: #fff;
+    padding: 30px;
+    border: 1.5px solid #d68b49;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.form-container h3 {
+    margin-top: 0;
+    font-size: 20px;
+}
+
+.form-container label {
+    display: block;
+    margin: 10px 0 5px;
+    
+}
+
+.form-container input,
+.form-container textarea,
+.form-container select,
+.form-container file
+  {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.form-container button {
+    background-color: #d68b49;
+    color: #fff;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    border-radius: 15px;
+    margin-top: 1.5%;
+    width: 20%;
+}
+
+.form-container button:hover {
+    background-color: #d37625;
+}
+
+#hotels-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    border: 1.5px solid #d68b49;
+}
+button i {
+    margin-left: 13px; /* Space between icon and text */
+    color: #ffffff;
+    font-size: 18px;
+    float: left;
+}
+
+.menu-btn:hover {
+    background-color: #2980b9; /* Hover color for buttons */
+}
+#hotels-table th,
+#hotels-table td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: center;
+}
+
+#hotels-table th {
+    background-color: #d68b49;
+    color: #fff;
+}
+
+button {
+    background-color: #d68b49;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    border-radius: 12px;
+    margin: 0 5px;
+}
+.view-btn {
+    background-color: #c81906; /* Red color for 'View' button */
+    color: #fff;
+}
+
