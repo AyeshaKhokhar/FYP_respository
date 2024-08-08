@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+    <link rel="stylesheet" href="adminpanel.css">
+</head>
+<body>
+    <div class="wrapper">
+        <!-- Sidebar -->
+        <nav id="sidebar">
+            <div class="sidebar-header">
+                <img src="logo1.png" alt="Logo" class="logo">
+                <!-- <h3>Admin Panel</h3> -->
+            </div>
+            <ul class="list-unstyled components">
+                <li class="active">
+                    <a href="#" onclick="showContent('dashboard')">Dashboard</a>
+                </li>
+                <li>
+                    <a href="#" onclick="showContent('user-management')">User Management</a>
+                </li>
+                <li>
+                    <a href="#" onclick="showContent('hotel-management')">Hotels Management</a>
+                </li>
+                <li>
+                    <a href="#" onclick="showContent('approvals-requests')">Approvals and Requests</a>
+                </li>
+                <li>
+                    <a href="#" onclick="showContent('content-management')">Content Management</a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Page Content -->
+        
+        <!-- Page Content -->
+        <div id="content">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <div class="container-fluid">
+                    <!-- <button type="button" id="sidebarCollapse" class="btn btn-info"> -->
+                        <!-- <i class="fas fa-align-left"></i> -->
+                        <span>Admin Panel</span>
+                    </button>
+                    <div class="logout-icon">
+                        <button><span class="logout-txt">Logout</span>
+                        <i class="fas fa-sign-out-alt"></i>
+                        </button>
+                    </div>
+                </div>
+            </nav>
+
+            <div class="main-content">
+                <div id="dashboard" class="content-section active">
+                    <h2>Dashboard</h2>
+                    <div class="stats-container">
+                        <div class="stat-box">
+                            <i class="fas fa-hotel icon-color"></i>
+                            <div class="text-container">
+                                <h3>Listed Hotels</h3>
+                                <p id="listed-hotels">120</p>
+                            </div>
+                        </div>
+                        <div class="stat-box">
+                            <i class="fas fa-clock icon-color"></i>
+                            <div class="text-container">
+                                <h3>Pending Requests</h3>
+                                <p id="pending-requests">15</p>
+                            </div>
+                        </div>
+                        <div class="stat-box">
+                            <i class="fas fa-comments icon-color"></i>
+                            <div class="text-container">
+                                <h3>Recent Reviews</h3>
+                                <p id="recent-reviews">25</p>
+                            </div>
+                        </div>
+                        <div class="stat-box">
+                            <i class="fas fa-user-plus icon-color"></i>
+                            <div class="text-container">
+                                <h3>Total Registrations</h3>
+                                <p id="total-registrations">230</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <h3>Pending Requests</h3>
+                        <table class="styled-table">
+                            <thead>
+                                <tr>
+                                    <th>Hotel Owner</th>
+                                    <th>Hotel Name</th>
+                                    <th>Email Address</th>
+                                    <th>Status</th>
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>John Doe</td>
+                                    <td>Hotel Sunshine</td>
+                                    <td>abc@gmail.com</td>
+                                    <td class="pending">Pending</td>
+                                </tr>
+                                <tr>
+                                    <td>Jane Smith</td>
+                                    <td>Mountain Retreat</td>
+                                    <td>abc@gmail.com</td>
+                                    <td class="pending">Pending</td>
+                                </tr>
+                                <!-- Add more rows as needed -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div id="user-management" class="content-section">
+                    <h2>User Account Management</h2>
+                        <table id="user-table" class="styled-table">
+                            <thead>
+                                <tr>
+                                    <th>Username</th>
+                                    <th>Email</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>john_doe</td>
+                                    <td>john@example.com</td>
+                                    <td>
+                                        <!-- <button class="view-btn">View</button> -->
+                                        <button class="delete-btn">Delete</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>jane_smith</td>
+                                    <td>jane@example.com</td>
+                                    <td>
+                                        <!-- <button class="view-btn">View</button> -->
+                                        <button class="delete-btn">Delete</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>jane_smith</td>
+                                    <td>jane@example.com</td>
+                                    <td>
+                                        <!-- <button class="view-btn">View</button> -->
+                                        <button class="delete-btn">Delete</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>jane_smith</td>
+                                    <td>jane@example.com</td>
+                                    <td>
+                                        <!-- <button class="view-btn">View</button> -->
+                                        <button class="delete-btn">Delete</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>jane_smith</td>
+                                    <td>jane@example.com</td>
+                                    <td>
+                                        <!-- <button class="view-btn">View</button> -->
+                                        <button class="delete-btn">Delete</button>
+                                    </td>
+                                </tr>
+                                <!-- More user rows can be added here -->
+                            </tbody>
+                        </table>
+                    <!-- </div> -->
+                </div>
+                <div id="hotel-management" class="content-section">
+                    <h2>Hotel-Management</h2>
+                    <table id="hotel-table">
+                        <thead>
+                            <tr>
+                                <th>Hotel Name</th>
+                                <th>Email</th>
+                                <th>Hotel Location</th>
+                                <th>Ranking Score</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Hotel Sunshine</td>
+                                <td>john@example.com</td>
+                                <td>Skp</td>
+                                <td>4.5</td>
+                                <td>
+                                    <button class="view-btn">View</button>
+                                    <button class="update-btn">Edit</button>
+                                    <button class="delete-btn">Delete</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Mountain Retreat</td>
+                                <td>john@example.com</td>
+                                <td>lhr</td>
+                                <td>4.7</td>
+                                <td>
+                                    <button class="view-btn">View</button>
+                                    <button class="update-btn">Edit</button>
+                                    <button class="delete-btn">Delete</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Mountain Retreat</td>
+                                <td>john@example.com</td>
+                                <td>lhr</td>
+                                <td>4.7</td>
+                                <td>
+                                    <button class="view-btn">View</button>
+                                    <button class="update-btn" onclick="editHotel(this)">Edit</button>
+                                    <button class="delete-btn">Delete</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Mountain Retreat</td>
+                                <td>john@example.com</td>
+                                <td>lhr</td>
+                                <td>4.7</td>
+                                <td>
+                                    <button class="view-btn">View</button>
+                                    <button class="update-btn" onclick="editHotel(this)">Edit</button>
+                                    <button class="delete-btn">Delete</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Mountain Retreat</td>
+                                <td>john@example.com</td>
+                                <td>lhr</td>
+                                <td>4.7</td>
+                                <td>
+                                    <button class="view-btn">View</button>
+                                    <button class="update-btn" onclick="editHotel(this)">Edit</button>
+                                    <button class="delete-btn">Delete</button>
+                                </td>
+                            </tr>
+                            <!-- More hotel rows can be added here -->
+                        </tbody>
+                    </table>
+
+                    <!-- <div id="edit-hotel-form" class="form-container">
+                        <h3>Edit Hotel Information</h3>
+                        <form id="hotel-form">
+                            <label for="hotel-name">Hotel Name</label>
+                            <input type="text" id="hotel-name" name="hotel-name" required>
+            
+                            <label for="hotel-description">Hotel Description</label>
+                            <textarea id="hotel-description" name="hotel-description" rows="4" required></textarea>
+            
+                            <label for="hotel-location">Hotel Location</label>
+                            <input type="text" id="hotel-location" name="hotel-location" required>
+            
+                            <label for="hotel-images">Hotel Images</label>
+                            <input type="file" id="hotel-images" name="hotel-images" multiple required>
+            
+                            <button type="submit">Update</button>
+                        </form>
+                    </div> -->
+                </div>
+                <div id="approvals-requests" class="content-section">
+                    <h2>Approvals and Request</h2>
+                    <div class="requests-boxes">
+                        <div class="request-box">
+                            <div class="request-header">
+                                <h4>Hotel Sunshine</h4>
+                                <p class="status-pending">Pending</p>
+                            </div>
+                            <div class="request-body">
+                                <!-- <img src="hotel_sunshine.jpg" alt="Hotel Sunshine" class="hotel-image"> -->
+                                <p><strong>Owner Name:</strong> John Doe</p>
+                                <p><strong>Email:</strong> john@example.com</p>
+                                <p><strong>Address:</strong> 123 Sunshine St, Sunshine City</p>
+                                <p><a href="https://maps.google.com/?q=123+Sunshine+St,+Sunshine+City" target="_blank" class="map-link">View on Google Maps</a></p>
+                            </div>
+                            <div class="request-footer">
+                                <button class="approve-btn">Approve</button>
+                                <button class="decline-btn">Decline</button>
+                            </div>
+                        </div>
+                        <div class="request-box">
+                            <div class="request-header">
+                                <h4>Mountain Retreat</h4>
+                                <p class="status-pending">Pending</p>
+                            </div>
+                            <div class="request-body">
+                                <!-- <img src="mountain_retreat.jpg" alt="Mountain Retreat" class="hotel-image"> -->
+                                <p><strong>Owner Name:</strong> Jane Smith</p>
+                                <p><strong>Email:</strong> jane@example.com</p>
+                                <p><strong>Address:</strong> 456 Mountain Rd, Mountain City</p>
+                                <p><a href="https://maps.google.com/?q=456+Mountain+Rd,+Mountain+City" target="_blank" class="map-link">View on Google Maps</a></p>
+                            </div>
+                            <div class="request-footer">
+                                <button class="approve-btn">Approve</button>
+                                <button class="decline-btn">Decline</button>
+                            </div>
+                        </div>
+                </div>
+            </div>
+            <div id="content-management" class="content-section">
+                <h2>Content Management</h2>
+                    <div class="dropdown-container">
+                        <select id="hotel-dropdown">
+                            <option value="" selected disabled>Select a hotel</option>
+                            <option value="Hotel Sunshine">Hotel Sunshine</option>
+                            <option value="Mountain Retreat">Mountain Retreat</option>
+                            <!-- Add more hotel options here -->
+                        </select>
+                    </div>
+                    <div id="all-hotels" class="hotel-details">
+                        <!-- Display all hotels initially -->
+                    </div>
+                    <div id="selected-hotel" class="hotel-details" style="display:none;">
+                        <!-- Hotel details will be dynamically loaded here when a hotel is selected -->
+                    </div>
+          
+            </div>
+            
+        </div>
+    </div>
+     <!-- Modal for Editing Hotel -->
+     <div id="edit-hotel-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeModal()">&times;</span>
+            <h3>Edit Hotel Information</h3>
+            <form id="hotel-form">
+                <label for="hotel-name">Hotel Name</label>
+                <input type="text" id="hotel-name" name="hotel-name" required>
+
+                <label for="hotel-description">Hotel Description</label>
+                <textarea id="hotel-description" name="hotel-description" rows="4" required></textarea>
+
+                <label for="hotel-location">Hotel Location</label>
+                <input type="text" id="hotel-location" name="hotel-location" required>
+
+                <div id="image-uploads">
+                    <div class="image-upload">
+                        <label for="hotel-images">Hotel Images (optional)</label>
+                        <input type="file" id="hotel-images" name="hotel-images[]" multiple>
+                        <label for="image-position">Image Position</label>
+                        <select id="image-position" name="image-position[]">
+                            <option value="">Select Image Position</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="button" id="add-image-btn">Add Another Image</button>
+
+
+                <button type="submit">Update</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/js/all.min.js"></script>
+    <script src="panel.js"></script>
+</body>
+</html>
