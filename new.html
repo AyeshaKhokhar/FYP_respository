@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Step Form</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        .header {
+            background-color: #b76a27;
+            color: #fff;
+            padding: 5px 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header .logo {
+            max-height: 50px;
+            filter: brightness(0) invert(1);
+        }
+
+        .flag {
+            height: 40px;
+            margin-left: 10px;
+            /* Adjust spacing between images */
+        }
+
+        .heading1 {
+            font-family: Arial, Helvetica, sans-serif;
+            color: #ffffff;
+            font-size: 20px;
+        }
+
+        .flags-container {
+            margin-right: 5%;
+
+        }
+
+
+
+        label span {
+            color: brown;
+        }
+
+
+
+        .form-container {
+            margin: 50px;
+            margin-top: 3%;
+            margin-left: 13%;
+            max-width: 350px;
+            /* background: #fff; */
+            border: 1.5px solid #d68b49;
+            padding: 10px;
+            padding-left: 30px;
+            padding-right: 40px;
+            flex-grow: 1;
+            /* padding-bottom: 20px; */
+            /* border-radius: 8px; */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+
+        }
+
+        .form-step {
+            display: none;
+        }
+
+        .form-step.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label,
+        textarea,
+        select {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .form-group input,
+        textarea,
+        select {
+            width: 100%;
+            padding: 8px;
+            background-color: #f4f4f4;
+            border: 1.3px solid #cecccc;
+            border-radius: 10px;
+        }
+
+        .form-group checkbox input {
+            margin-top: 2%;
+        }
+
+        .form-actions {
+            margin-top: 20px;
+        }
+
+        .form-actions button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            color: #fff;
+            background-color: #b76a27;
+            cursor: pointer;
+        }
+
+        .form-actions button.back {
+            background-color: #6c757d;
+        }
+
+        .form-actions button:disabled {
+            background-color: #ccc;
+        }
+
+        .image-container {
+            position: sticky;
+            margin-top: 3%;
+            /* Adjust this value to control the vertical position */
+            margin-right: 15%;
+            /* Adjust this value if you need more space between form and image */
+            max-width: 350px;
+        }
+
+        .image-container img {
+            max-width: 350px;
+            position: sticky;
+            /* border-radius: 8px; */
+        }
+
+        .container {
+            display: flex;
+            justify-content: space-between;
+            /* margin: 50px; */
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            margin-top: 2%;
+        }
+
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+            margin-right: 40%;
+            /* Adjust spacing between checkboxes if needed */
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            margin-right: 5px;
+            /* Adjust spacing between checkbox and its value */
+        }
+
+        .error-message {
+            color: rgb(213, 0, 0);
+            font-size: 12px;
+        }
+
+        .header .heading1 {
+            font-family: Arial, Helvetica, sans-serif;
+            color: #fff;
+            font-size: 20px;
+            margin: 0;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <img src="logo1.png" alt="Logo" class="logo">
+        <h4 class="heading1">Hotel Hype Listing Form!</h4>
+        <div class="flags-container">
+            <img src="icons8-pakistan-48.png" alt="Pakistan Flag" class="flag">
+            <img src="icons8-account-50.png" alt="" class="flag">
+        </div>
+    </div>
+    <div class="container">
+        <div class="form-container">
+            <form id="multiStepForm">
+                <!-- Step 1 -->
+                <div class="form-step active" id="step1">
+                    <h4 class="heading">Get youself Registered!</h4>
+                    <div class="form-group">
+                        <label for="email">Email <span>*</span> </label>
+                        <input type="email" id="email" name="email" placeholder="abc@gmail.con" required>
+                        <div class="error-message" id="emailError"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password <span>*</span></label>
+                        <input type="password" id="password" name="password"
+                            placeholder="Password must be strong(use special char)" required>
+                        <div class="error-message" id="passwordError"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirm Password <span>*</span></label>
+                        <input type="password" id="confirmPassword" name="confirmPassword" required>
+                        <div class="error-message" id="confirmPasswordError"></div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" onclick="nextStep()">Next</button>
+                    </div>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="form-step" id="step2">
+                    <h4 class="heading">Get youself Registered!</h4>
+                    <div class="form-group">
+                        <label for="name">Name</label>
+                        <input type="text" id="name" name="name" placeholder="Full name" required>
+                        <div class="error-message" id="nameError"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="address">Address</label>
+                        <input type="text" id="address" name="address" placeholder="enter your address" required>
+                        <div class="error-message" id="addressError"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" id="phone" name="phone" placeholder="xxxxxxxxxx" required>
+                        <div class="error-message" id="phoneError"></div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="back" onclick="prevStep()">Back</button>
+                        <button type="button" onclick="nextStep()">Next</button>
+
+                    </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="form-step" id="step3">
+                    <h4 class="heading">Your Hotel Listing Data!</h4>
+                    <div class="form-group">
+                        <label for="hotelName">Hotel Name <span class="required-star">*</span></label>
+                        <input type="text" id="hotelName" name="hotelName" placeholder="enter your hotel name" required>
+                        <div class="error-message" id="hotelNameError"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="hotelLocation">Hotel Location <span class="required-star">*</span></label>
+                        <input type="text" id="hotelLocation" name="hotelLocation" placeholder="pin your hotel location"
+                            required>
+                        <div class="error-message" id="hotelLocationError"></div>
+
+                    </div>
+                    <div class="form-group">
+                        <label for="googleMapLink">Google Map Link <span class="required-star">*</span></label>
+                        <input type="url" id="googleMapLink" name="googleMapLink" placeholder="hotel map location"
+                            required>
+                        <div class="error-message" id="googleMapLinkError"></div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="back" onclick="prevStep()">Back</button>
+                        <button type="button" onclick="nextStep()">Next</button>
+                    </div>
+                </div>
+
+
+
+                <!--  -->
+                <!-- Step 4 -->
+                <div class="form-step" id="step4">
+                    <h4 class="heading">Fill all Details</h4>
+                    <div class="form-group">
+                        <label for="city">City <span class="required-star">*</span></label>
+                        <input type="text" id="city" name="city" placeholder="hotel city" required>
+                        <div class="error-message" id="cityError"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="ratingScore">Rating Score <span class="required-star">*</span></label>
+                        <input type="number" id="ratingScore" name="ratingScore" min="0" max="5" step="0.1"
+                            placeholder="rating value between 0-5" required>
+                        <div class="error-message" id="ratingScoreError"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="embeddedCode">Embedded Code from Google Map <span
+                                class="required-star">*</span></label>
+                        <textarea id="embeddedCode" name="embeddedCode" rows="4" required></textarea>
+                        <div class="error-message" id="embeddedCodeError"></div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="back" onclick="prevStep()">Back</button>
+                        <button type="button" onclick="nextStep()">Next</button>
+                    </div>
+                </div>
+
+                <!--  -->
+                <div class="form-step" id="step5">
+                    <h4 class="heading">What's your hotel facilities!</h4>
+                    <div class="form-group">
+                        <label>Facilities <span class="required-star">*</span></label>
+                        <div class="checkbox-group">
+                            <label><input type="checkbox" name="facilities" value="wifi"> WiFi</label>
+                            <label><input type="checkbox" name="facilities" value="parking"> Parking</label>
+                            <label><input type="checkbox" name="facilities" value="pool"> Pool</label>
+                            <label><input type="checkbox" name="facilities" value="gym"> Gym</label>
+                            <label><input type="checkbox" name="facilities" value="spa"> Spa</label>
+                            <label><input type="checkbox" name="facilities" value="restaurant"> Restaurant</label>
+                            <label><input type="checkbox" name="facilities" value="gym"> Gym</label>
+                            <label><input type="checkbox" name="facilities" value="spa"> Spa</label>
+                            <label><input type="checkbox" name="facilities" value="restaurant"> Restaurant</label>
+                            <div class="error-message" id="checkboxErorr"></div>
+
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="back" onclick="prevStep()">Back</button>
+                        <button type="button" onclick="nextStep()">Next</button>
+                    </div>
+                </div>
+
+                <!--  -->
+                <div class="form-step" id="step6">
+                    <h4 class="heading">What's your Room Details!</h4>
+                    <div class="form-group">
+                        <label for="totalRooms">Room Name<span class="required-star">*</span></label>
+                        <input type="text" id="totalRooms" name="totalRooms" placeholder="Enter Room name" required>
+                        <div class="error-message" id="totalRoomsError"></div>
+
+                    </div>
+                    <div class="form-group">
+                        <label for="roomDetails">Room Details <span class="required-star">*</span></label>
+                        <textarea id="roomDetails" name="roomDetails" rows="4" placeholder="Enter room descrption"
+                            required></textarea>
+                        <div class="error-message" id="roomDetailsError"></div>
+
+                    </div>
+                    <div class="form-group">
+                        <label for="bedSize">Bed Size <span class="required-star">*</span></label>
+                        <select id="bedSize" name="bedSize" required>
+                            <option value="single">Single Bed</option>
+                            <option value="double">Double Bed</option>
+                            <option value="extra-large">Extra Large Bed</option>
+                        </select>
+                        <div class="error-message" id="bedSizeError"></div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="back" onclick="prevStep()">Back</button>
+                        <button type="button" onclick="nextStep()">Next</button>
+                    </div>
+                </div>
+
+                <!--  -->
+                <div class="form-step" id="step7">
+                    <h4 class="heading">What's your Room facilities!</h4>
+                    <div class="form-group">
+                        <label>Room Facilities <span class="required-star">*</span></label>
+                        <div class="checkbox-group">
+                            <label><input type="checkbox" name="facilities" value="wifi"> WiFi</label>
+                            <label><input type="checkbox" name="facilities" value="parking"> Parking</label>
+                            <label><input type="checkbox" name="facilities" value="pool"> Pool</label>
+                            <label><input type="checkbox" name="facilities" value="gym"> Gym</label>
+                            <label><input type="checkbox" name="facilities" value="spa"> Spa</label>
+                            <label><input type="checkbox" name="facilities" value="restaurant"> Restaurant</label>
+                            <label><input type="checkbox" name="facilities" value="gym"> Gym</label>
+                            <label><input type="checkbox" name="facilities" value="spa"> Spa</label>
+                            <label><input type="checkbox" name="facilities" value="restaurant"> Restaurant</label>
+                            <div class="error-message" id="checkboxErorr"></div>
+
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="back" onclick="prevStep()">Back</button>
+                        <button type="button" onclick="nextStep()">Next</button>
+                    </div>
+                </div>
+
+                <!--  -->
+                <div class="form-step" id="step8">
+                    <h4 class="heading">Include the hotels images!</h4>
+                    <div class="form-group">
+                        <label for="hotelImages">Hotel Images (up to 7) <span class="required-star">*</span></label>
+                        <input type="file" id="hotelImages" name="hotelImages" accept="image/*" multiple required>
+                        <div class="error-message" id="hotelImagesError"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="hotelMainImage">Hotel Main Image <span class="required-star">*</span></label>
+                        <input type="file" id="hotelMainImage" name="hotelMainImage" accept="image/*" required>
+                        <div class="error-message" id="hotelMainImage"></div>
+
+
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="back" onclick="prevStep()">Back</button>
+                        <button type="submit">Submit</button>
+                    </div>
+                </div>
+        </div>
+        </form>
+        <div class="image-container">
+            <img src="Yellow Simple Home Rules Poster.png" alt="Side Image">
+        </div>
+
+    </div>
+
+    <script>
+        let currentStep = 0;
+        const formSteps = document.querySelectorAll(".form-step");
+
+        function nextStep() {
+            if (validateStep(currentStep)) {
+                formSteps[currentStep].classList.remove("active");
+                currentStep++;
+
+                if (currentStep >= formSteps.length) {
+                    // If at the last step, prevent going further and submit form
+                    document.getElementById("multiStepForm").submit();
+                } else {
+                    formSteps[currentStep].classList.add("active");
+                }
+            }
+        }
+        document.getElementById("hotelImages").addEventListener("change", function () {
+            const files = this.files;
+            const errorElement = document.getElementById("hotelImagesError");
+            if (files.length > 7) {
+                errorElement.textContent = "You can upload a maximum of 7 images.";
+            } else {
+                errorElement.textContent = "";
+            }
+        });
+
+
+        function prevStep() {
+            formSteps[currentStep].classList.remove("active");
+            currentStep--;
+            formSteps[currentStep].classList.add("active");
+        }
+
+        function validateForm() {
+            return validateStep(currentStep);
+        }
+
+        function validateStep(step) {
+            let isValid = true;
+            const stepElement = formSteps[step];
+            const inputs = stepElement.querySelectorAll("input[required], textarea[required], select[required]");
+
+            inputs.forEach(input => {
+                const errorElement = stepElement.querySelector(`#${input.id}Error`);
+                if (!input.checkValidity()) {
+                    errorElement.textContent = input.validationMessage;
+                    isValid = false;
+                }
+
+                else {
+                    // Additional validation for phone number
+                    if (input.id === "phone") {
+                        const phoneValue = input.value.replace(/\D/g, ''); // Remove non-numeric characters
+                        if (phoneValue.length !== 11) {
+                            errorElement.textContent = "Phone number must be exactly 11 digits.";
+                            isValid = false;
+                        } else {
+                            errorElement.textContent = "";
+                        }
+                    }
+                    else if (input.id === "hotelImages") {
+                        const files = input.files;
+                        if (files.length > 7) {
+                            errorElement.textContent = "You can upload a maximum of 7 images.";
+                            isValid = false;
+                        } else {
+                            errorElement.textContent = "";
+                        }
+                    } else if (input.id === "embeddedCode") {
+                        const embedCodeValue = input.value.trim();
+                        const googleMapsRegex = /^https:\/\/www\.google\.com\/maps\/embed\?pb=/;
+                        if (!googleMapsRegex.test(embedCodeValue)) {
+                            errorElement.textContent = "Please enter a valid Google Maps embed code link.";
+                            isValid = false;
+                        } else {
+                            errorElement.textContent = "";
+                        }
+                    } else {
+                        errorElement.textContent = "";
+                    }
+                }
+            });
+
+            // Additional validation for password strength
+            if (step === 0) {
+                const password = document.getElementById("password").value;
+                const confirmPassword = document.getElementById("confirmPassword").value;
+
+                if (!isValidPassword(password)) {
+                    document.getElementById("passwordError").textContent = "Password must be at least 8 characters long, include at least one special character, one uppercase letter, one lowercase letter, and one digit.";
+                    isValid = false;
+                } else {
+                    document.getElementById("passwordError").textContent = "";
+                }
+
+                if (password !== confirmPassword) {
+                    document.getElementById("confirmPasswordError").textContent = "Passwords do not match.";
+                    isValid = false;
+                } else {
+                    document.getElementById("confirmPasswordError").textContent = "";
+                }
+            }
+
+            return isValid;
+        }
+        document.getElementById("multiStepForm").addEventListener("submit", function (event) {
+            if (!validateForm()) {
+                event.preventDefault(); // Prevent form submission if validation fails
+            }
+        });
+
+
+        function isValidPassword(password) {
+            const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&;:#.,/\^])[A-Za-z\d@$!%*?&;:#.,/\^]{8,}$/;
+            return regex.test(password);
+        }
+
+        function togglePassword(fieldId) {
+            const passwordField = document.getElementById(fieldId);
+            const type = passwordField.getAttribute("type") === "password" ? "text" : "password";
+            passwordField.setAttribute("type", type);
+        }
+    </script>
+
+</body>
+
+</html>
