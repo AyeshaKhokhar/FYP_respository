@@ -4,8 +4,10 @@ from recommender2 import recommend_hotels
 import nltk
 from nltk.tokenize import word_tokenize
 from textblob import TextBlob
+from flask_bcrypt import Bcrypt
 
 app = Flask(__name__)
+bcrypt = Bcrypt(app)
 
 @app.route('/')
 def home():
@@ -377,3 +379,92 @@ def register():
         return redirect(url_for('login'))
 
     return render_template('registeration.html')
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+        source = request.form['source']
+        print('source is:', source)
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)  # Use dictionary cursor to access columns by name
+
+        # Check if the email matches the admin email and password
+        admin_username = 'adminusername'
+        admin_email = 'admin@gmail.com'  # Replace with your admin email
+        admin_password = 'adminpassword'  # Replace with your hashed admin password
+
+        if email == admin_email and password == admin_password:
+            session['user_id'] = 'admin'  # Use a special identifier for admin
+            session['role'] = 'admin'
+            print(session['role'])
+            if source == 'dashboard':
+                print('indashb')
+                # Redirect to user panel page if coming from dashboard
+                return redirect(url_for('admin'))
+            cursor.close()
+            conn.close()
+            return redirect(url_for('admin'))
+
+        # Check if the email exists in the visitor table
+        cursor.execute('SELECT * FROM visitor WHERE email = %s', (email,))
+        user = cursor.fetchone()
+        
+
+        if user:
+            if bcrypt.check_password_hash(user['password'], password):
+                newid = user['id']
+                # Check if the user is in the listed_user table
+                cursor.execute('SELECT * FROM hotel_info WHERE user_id = %s', (newid,))
+                listed_user = cursor.fetchone()
+   
+                print('session: ', session.get('user_id', None))
+                if listed_user:
+                    # storing current id
+                    if source == 'dashboard':
+                        if 'user_id' in session:
+                            session['previous_session_id'] = session.get('user_id', None)
+                            print('pre is: ', session['previous_session_id'] )
+                    # User is in the listed_user table
+
+                    session['user_id'] = listed_user['user_id']
+                    session['role'] = 'listed'
+                    print(session['role'])
+                    print('curr: ', session['user_id'] )
+                    if source == 'dashboard':
+                        print('indashb')
+                # Redirect to user panel page if coming from dashboard
+                        return redirect(url_for('partner_panel'))
+                    else:
+                        # Redirect to home if not coming from dashboard
+                        return redirect(url_for('home'))
+                else:
+                    if source != 'dashboard':
+                    # User is a visitor
+                        session['user_id'] = user['id']
+                        session['role'] = 'visitor'
+                        print(session['role'])
+
+                    if source == 'dashboard':
+                # Redirect to user panel page if coming from dashboard
+                        return redirect(url_for('home', message='You are not listed as a property user.'))
+                
+                cursor.close()
+                conn.close()
+                return redirect(url_for('home'))  # Redirect to user dashboard or home
+
+            else:
+                cursor.close()
+                conn.close()
+                if source == 'dashboard':
+                    return redirect(url_for('home', message='Invalid email or password.'))
+                return render_template('login.html', error_message='Invalid email or password.')
+               
+
+        else:
+            cursor.close()
+            conn.close()
+            return render_template('login.html', error_message='Email not found.')
+
+    return render_template('login.html')
