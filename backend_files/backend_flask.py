@@ -338,3 +338,42 @@ def detail_page():
                                )
     else:
         return "Hotel not found", 404
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        username = request.form['username']
+        email = request.form['email']
+        password = request.form['password']
+        confirm_password = request.form['confirm_password']
+
+        # Check if both passwords match
+        if password != confirm_password:
+            return render_template('registeration.html', error_message='Passwords do not match. Please try again.')
+
+         # Hash the password using Flask-Bcrypt
+        hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        # Check if the email already exists
+        cursor.execute('SELECT * FROM visitor WHERE email = %s', (email,))
+        existing_user = cursor.fetchone()
+
+        if existing_user:
+            cursor.close()
+            conn.close()
+            return render_template('registeration.html', error_message='Username already exists. Please choose a different username.')
+
+        # Insert new user into the database
+        cursor.execute('INSERT INTO visitor (username, email, password) VALUES (%s, %s, %s)', 
+                       (username, email, hashed_password))
+        conn.commit()
+        session.pop('user_id', None)
+        cursor.close()
+        conn.close()
+
+        return redirect(url_for('login'))
+
+    return render_template('registeration.html')
