@@ -5,6 +5,9 @@ import nltk
 from nltk.tokenize import word_tokenize
 from textblob import TextBlob
 from flask_bcrypt import Bcrypt
+import os
+from werkzeug.utils import secure_filename
+import base64
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
@@ -468,6 +471,48 @@ def login():
             return render_template('login.html', error_message='Email not found.')
 
     return render_template('login.html')
+
+def save_image(image_data, filename):
+    # If image_data is a base64 string, decode it first
+    if image_data.startswith('data:image'):
+        header, image_data = image_data.split(';base64,')
+        image_data = base64.b64decode(image_data)
+    
+    with open(os.path.join(app.config['UPLOAD_FOLDER'], filename), 'wb') as f:
+        f.write(image_data)
+
+def convert_to_html(description):
+    """
+    Convert plain text description into HTML paragraphs.
+    """
+    # Split the description into paragraphs based on double newlines
+    paragraphs = description.strip().split('\n\n')
+    
+    # Convert each paragraph into <p> tag
+    html_paragraphs = ''.join(f'<p>{p.strip()}</p>\n' for p in paragraphs)
+    
+    return html_paragraphs
+
+def get_next_hotel_id():
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    
+    # Fetch the highest hotel_id from id_tracker
+    cursor.execute("SELECT last_id FROM id_tracker WHERE id_type = 'hotel_id'")
+    result = cursor.fetchone()
+    last_id = result['last_id']
+    
+    # Calculate the new hotel_id
+    new_hotel_id = last_id + 1
+    
+    # Update the last_id in the tracker
+    cursor.execute("UPDATE id_tracker SET last_id = %s WHERE id_type = 'hotel_id'", (new_hotel_id,))
+    conn.commit()
+    
+    cursor.close()
+    conn.close()
+    
+    return new_hotel_id
 
 @app.route('/admin', methods=['POST', 'GET'])
 def admin():
