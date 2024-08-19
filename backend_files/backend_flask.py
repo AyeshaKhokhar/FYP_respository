@@ -468,3 +468,198 @@ def login():
             return render_template('login.html', error_message='Email not found.')
 
     return render_template('login.html')
+
+@app.route('/admin', methods=['POST', 'GET'])
+def admin():
+    conn = get_db_connection()
+    cursor = conn.cursor()        
+    cursor.execute("SELECT COUNT(*) AS total_hotels FROM hotel_info")
+    total_hotels = cursor.fetchone()[0]
+
+    cursor.execute("SELECT COUNT(*) AS total_registrations FROM visitor")
+    total_registrations = cursor.fetchone()[0]
+
+    cursor.execute("SELECT COUNT(*) AS total_properties FROM property")
+    count_pending_properties = cursor.fetchone()[0]
+
+    cursor.execute("SELECT id, username, email FROM visitor")
+    user_info = cursor.fetchall()
+  
+#   for delete button whether user data is deleted or hotel data is deleted
+    action = request.args.get('action')
+    user_id = request.args.get('user_id')
+    hotel_id = request.args.get('hotel_id')
+    property_id = request.args.get('property_id')
+ 
+    print('action: ', action, 'user_id: ', user_id, 'hotel_id: ', hotel_id)
+    
+    if action == 'delete' and user_id:
+        cursor.execute("DELETE FROM visitor WHERE id = %s", (user_id,))
+        conn.commit()
+        response = {'status': 'success', 'message': 'User deleted successfully'}
+        return jsonify(response)
+    
+    if action == 'delete' and hotel_id:
+        cursor.execute("DELETE FROM hotel_info WHERE hotel_id = %s", (hotel_id,))
+        conn.commit()
+        response = {'status': 'success', 'message': 'Hotel deleted successfully'}
+        return jsonify(response)
+    
+    cursor.execute("SELECT * FROM property")
+    all_pending_property = cursor.fetchall()
+    
+    if action == 'approve' and property_id:
+        print('inside approve')
+        # Fetch pending property data
+        cursor.execute("SELECT * FROM property WHERE id = %s", (property_id,))
+        pending_property = cursor.fetchone()
+        
+        # cursor.execute("SELECT MAX(hotel_id) AS last_id FROM hotel_info")
+        # result = cursor.fetchone()
+        hotel_id_do = get_next_hotel_id()
+
+        if pending_property:
+            print("inside property")
+            # Store approved property in hotel_info table
+            cursor.execute("SELECT * FROM visitor WHERE id = %s", (pending_property[1],))
+            user = cursor.fetchone()
+
+             # Check if the user already has an entry in the listed table
+            cursor.execute("SELECT COUNT(*) FROM listed_user WHERE listeduser_id = %s", (pending_property[1],))
+            is_listed = cursor.fetchone()[0] > 0
+
+            if is_listed:
+                    # Update the approved count for the user in the listed table
+                cursor.execute("UPDATE listed_user SET approved_list = approved_list + 1 WHERE listeduser_id = %s", (pending_property[1],))
+            else:
+                    # Insert a new entry if not already listed
+                cursor.execute("""
+                        INSERT INTO listed_user (listeduser_id, username, email, password, hotel_id, approved_list, denied_list)
+                        VALUES (%s, %s, %s, %s, %s, %s, %s)
+                    """, (pending_property[1], user[1], user[2], user[3], hotel_id_do, 1, 0))
+                conn.commit()
+
+            cursor.execute("""
+                INSERT INTO hotel_info (hotel_id, hotel_link, hotel_name, review_score, hotel_city, facilities, hotel_pic, room_pic, hotel_loc, hotel_map, user_id)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            """, (hotel_id_do, pending_property[11], pending_property[7], pending_property[10], pending_property[8], pending_property[13], pending_property[19], pending_property[18], pending_property[9], pending_property[12], pending_property[1]))
+            conn.commit()
+
+            # Insert room details into room_details table
+            cursor.execute("""
+                INSERT INTO room_details (hotel_id, room_name, room_desc, bed_quantity, room_fac)
+                VALUES (%s, %s, %s, %s, %s)
+            """, (hotel_id_do, pending_property[14], pending_property[15], pending_property[16], pending_property[17]))
+
+
+            # Delete the approved property from pending_properties
+            cursor.execute("DELETE FROM property WHERE id = %s", (property_id,))
+            conn.commit()
+
+            response = {'status': 'success', 'message': 'Listing approved successfully'}
+            return jsonify(response)
+
+            # Notify user about approval
+         
+        else:
+            response = {'status': 'success', 'message': 'Listing not approved successfully'}
+            return jsonify(response)   # Implement email notification here
+
+    elif action == 'decline' and property_id:
+        # Delete the pending property
+        print('priperty is: ', property_id)
+        cursor.execute("SELECT user_id FROM property WHERE id = %s", (property_id,))
+        denied_user_id = cursor.fetchone()[0]
+        print('denied is:', denied_user_id)
+
+        cursor.execute("DELETE FROM property WHERE id = %s", (property_id,))
+        conn.commit()
+
+        if denied_user_id:
+            cursor.execute("SELECT listeduser_id FROM listed_user WHERE listeduser_id = %s", (denied_user_id,))
+            islisted = cursor.fetchone()
+            print(islisted)
+            if islisted:
+                # Update the denied count for the user
+                cursor.execute("UPDATE listed_user SET denied_list = denied_list + 1 WHERE listeduser_id = %s", (denied_user_id,))
+                conn.commit()
+        
+        response = {'status': 'success', 'message': 'Listing deny successfully'}
+        return jsonify(response)
+        # Notify user about rejection
+        # Implement email notification here
+
+    elif request.method == 'POST':
+        try:
+            if request.content_type == 'application/json':
+                data = request.get_json()
+                hotel_id = data.get('hotel-id')
+                hotel_name = data.get('hotel-name')
+                hotel_description = data.get('hotel-description')
+                hotel_location = data.get('hotel-location')
+                hotel_images = data.get('hotel-images')  # Base64 encoded image data
+
+                update_fields = []
+                params = []
+
+                if hotel_name:
+                    update_fields.append("hotel_name = %s")
+                    params.append(hotel_name)
+
+                if hotel_description:
+                    hotel_description_html = convert_to_html(hotel_description)
+                    update_fields.append("hotel_desc = %s")
+                    params.append(hotel_description_html)
+                
+                if hotel_location:
+                    update_fields.append("hotel_city = %s")
+                    params.append(hotel_location)
+
+      
+
+                # Handle image if provided
+                if hotel_images:
+                    filename = 'image_' + hotel_id + '.png'  # Dynamic filename based on hotel ID
+                    filename = secure_filename(filename)  # Ensure filename is safe
+                    save_image(hotel_images, filename)
+                    update_fields.append("hotel_pic = %s")
+                    params.append(filename)
+
+                if not hotel_id:
+                    return jsonify({'status': 'error', 'message': 'Hotel ID is required'}), 400
+                params.append(hotel_id)
+                # Create the update query string
+                update_query = "UPDATE hotel_info SET " + ", ".join(update_fields) + " WHERE hotel_id = %s"
+
+                # Debugging prints
+                print(f"Update Query: {update_query}")
+                print(f"Parameters: {params}")
+
+                # Execute the query
+                cursor.execute(update_query, params)
+                conn.commit()
+
+                return jsonify({'status': 'success', 'message': 'Hotel information updated successfully!'}) 
+
+        except Exception as e:
+            print(f"Exception: {e}")
+            return jsonify({'status': 'error', 'message': str(e)}), 500
+
+    cursor.execute("SELECT hotel_id, hotel_name, hotel_type, hotel_city, hotel_price, review_score  FROM hotel_info ORDER BY review_score DESC")
+    hotel_data = cursor.fetchall()
+    # print(hotel_data)
+
+    # Fetch all users for GET request without action
+    cursor.execute("SELECT id, username, email FROM visitor")
+    users = cursor.fetchall()
+    response = {'status': 'success', 'users': users}
+
+    conn.close()
+
+    return render_template('adminpanel.html',
+                           total_hotels=total_hotels,
+                           total_registrations=total_registrations,
+                           user_info=user_info,
+                           hotel_data=hotel_data,
+                           all_pending_property=all_pending_property,
+                           count_pending_properties=count_pending_properties)
