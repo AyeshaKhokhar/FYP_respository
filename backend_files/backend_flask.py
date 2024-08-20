@@ -716,3 +716,155 @@ def property():
     if 'user_id' in session: 
         print('yes it is', session['user_id'])
     return render_template('list_form.html')
+
+@app.route('/submit_property', methods=['POST'])
+def submit_property():
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    submission_type = request.form.get('submission_type', '')
+    if 'user_id' not in session and submission_type == 'list_property':
+        return jsonify({'status': 'error', 'message': 'You must be logged in to submit a property.'}), 403
+
+    try:
+        
+        if submission_type == 'list_property':
+            username = request.form.get('username', '')
+            email = request.form.get('email', '')
+            password = request.form.get('password', '')
+            confirmPassword = request.form.get('confirmPassword', '')
+            address = request.form.get('address', '')
+            phone = request.form.get('phone', '')
+            hotel_name = request.form.get('hotelName', '')
+            hotel_link = request.form.get('googleMapLink', '')
+            hotel_location = request.form.get('hotelLocation', '')
+            hotel_city = request.form.get('city', '')
+            hotel_score = request.form.get('ratingScore', '')
+            hotel_embeddedCode = request.form.get('embeddedCode', '')
+            hotel_facilities = request.form.getlist('facilities')
+            room_name = request.form.get('totalRooms', '')
+            room_details = request.form.get('roomDetails', '')
+            room_bed = request.form.get('bedSize', '')
+            room_facilities = request.form.getlist('room_facilities')
+            # Handle file uploads (only store filenames)
+            hotel_images = request.files.getlist('hotelImages')
+            hotel_main_image = request.files.get('hotelMainImage')
+
+        # Check if email exists in the database
+            print('not eneterd')
+            cursor.execute('SELECT * FROM visitor WHERE email = %s', (email,))
+            print(email)
+            user = cursor.fetchone()
+
+            if user:
+                # If user exists, check if session user_id matches the email ID
+                existing_user_id = user['id']
+                print('useris')
+                print(user['id'])
+                if session['user_id'] != existing_user_id:
+                    print('usrenot')
+                    print(session['user_id'])
+                    # Update session user_id to match the email ID
+                    session['user_id'] = existing_user_id
+                    print(session['user_id'])
+            else:
+                
+                if password != confirmPassword:
+                    return render_template('list_form.html', error_message='Passwords do not match. Please try again.')
+
+            # Hash the password using Flask-Bcrypt
+                hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+                
+                print('about')
+                cursor.execute('INSERT INTO visitor (username, email, password) VALUES (%s, %s, %s)', (username, email, hashed_password))
+                
+                conn.commit()
+                new_user_id = cursor.lastrowid
+                print('go')
+                session['user_id'] = new_user_id
+
+            # Extract filenames from file objects
+            hotel_images_filenames = [image.filename for image in hotel_images if image.filename]
+            main_image_filename = hotel_main_image.filename if hotel_main_image and hotel_main_image.filename else None
+
+            # Convert lists to strings for database insertion
+            hotel_facilities_str = '  '.join(hotel_facilities)
+            room_facilities_str = ', '.join(room_facilities)
+            hotel_images_str = ', '.join(hotel_images_filenames)
+            print('done')
+          
+            print('to enter')
+            cursor.execute("""
+                INSERT INTO property (
+                    user_id, username, email, password, address, phone, hotel_name, hotel_city, hotel_location, 
+                    hotel_score, hotel_link, hotel_mapcode, hotel_facilities, room_name, room_des, 
+                    room_bed, room_facilities, hotel_images, hotel_main_image, status
+                )
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 'pending')
+            """, (
+                session['user_id'], username, email, password, address, phone, hotel_name, hotel_city, hotel_location,
+                hotel_score, hotel_link, hotel_embeddedCode, hotel_facilities_str, room_name, room_details,
+                room_bed, room_facilities_str, hotel_images_str, main_image_filename
+            ))
+            conn.commit()
+            print('notere')
+            return jsonify({'status': 'success', 'message': 'Property submitted for review!'})
+        
+        elif submission_type == 'partner_panel':
+            # Handle property submission for 'partner_panel' without user credentials
+            hotel_name = request.form.get('hotel-name', '')
+            city = request.form.get('city', '')
+            hotel_location = request.form.get('hotel-location', '')
+            hotel_rating = request.form.get('hotel-rating', '')
+            google_map_link = request.form.get('googleMapLink', '')
+            embedded_code = request.form.get('embeddedCode', '')
+            facilities = request.form.getlist('facilities')
+            hotel_description = request.form.get('hotel-description', '')
+            room_name = request.form.get('totalRooms', '')
+            bed_size = request.form.get('bedSize', '')
+            room_facilities = request.form.getlist('roomFacilities')
+            room_details = request.form.get('roomDetails', '')
+            hotel_images = request.files.getlist('hotelImages')
+            hotel_main_image = request.files.get('hotelMainImage')
+
+            # Extract filenames from file objects
+            hotel_images_filenames = [image.filename for image in hotel_images if image.filename]
+            main_image_filename = hotel_main_image.filename if hotel_main_image and hotel_main_image.filename else None
+            
+            # Convert lists to strings for database insertion
+            facilities_str = ', '.join(facilities)
+            room_facilities_str = ', '.join(room_facilities)
+            hotel_images_str = ', '.join(hotel_images_filenames)
+
+            user_id =session.get('user_id')
+            cursor.execute('SELECT username, email, password FROM visitor WHERE id = %s', (user_id,))
+            user_details = cursor.fetchone()
+            username = user_details['email']
+            email = user_details['password']
+            password = user_details['username']
+            print(username, email, password)
+            # Insert into property table
+            cursor.execute("""
+                INSERT INTO property (
+                    user_id, username, email, password, address, phone, hotel_name, hotel_city, hotel_location, 
+                    hotel_score, hotel_link, hotel_mapcode, hotel_facilities, room_name, room_des, 
+                    room_bed, room_facilities, hotel_images, hotel_main_image, status
+                )
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 'pending')
+            """, (
+                session.get('user_id', None),  user_details['username'], user_details['email'] , user_details['password'],  None, None, hotel_name, city, hotel_location,
+                hotel_rating, google_map_link, embedded_code, facilities_str, room_name, room_details,
+                bed_size, room_facilities_str, hotel_images_str, main_image_filename
+            ))
+
+        conn.commit()
+        return jsonify({'status': 'success', 'message': 'Property submitted for review!'})
+
+    except Exception as e:
+        print(f"Exception: {e}")
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+
+    finally:
+        conn.close()
