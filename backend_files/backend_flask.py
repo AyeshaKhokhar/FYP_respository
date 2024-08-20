@@ -708,3 +708,11 @@ def admin():
                            hotel_data=hotel_data,
                            all_pending_property=all_pending_property,
                            count_pending_properties=count_pending_properties)
+
+@app.route('/list_property')
+def property():
+    if 'user_id' not in session:
+        return render_template('login.html', error_message='First u need to get login.')
+    if 'user_id' in session: 
+        print('yes it is', session['user_id'])
+    return render_template('list_form.html')
