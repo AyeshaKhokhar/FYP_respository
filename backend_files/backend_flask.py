@@ -868,3 +868,68 @@ def submit_property():
 
     finally:
         conn.close()
+
+@app.route('/update_hotel', methods=['POST'])
+def update_hotel():
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    user_id = session.get('user_id')  
+    hotel_id = request.form.get('hotel-id')
+
+    # Check if hotel ID exists for the user
+    cursor.execute('SELECT hotel_id FROM hotel_info WHERE hotel_id = %s AND user_id = %s', (hotel_id, user_id))
+    result = cursor.fetchone()
+
+    if not result:
+        return jsonify({"status": "error", "message": "Hotel ID does not exist or is not associated with this user"})
+
+    # Get form data
+    hotel_id = request.form.get('hotel-id')
+    hotel_name = request.form.get('update-hotel-name')
+    hotel_location = request.form.get('update-hotel-location')
+    hotel_rating = request.form.get('update-hotel-rating')
+    hotel_description = request.form.get('update-hotel-description')
+    
+    # Handle file upload if present
+    hotel_main_image = request.files.get('hotelMainImage')
+    if hotel_main_image:
+        # Save file and get its path
+        image_path = f"static/images/{hotel_main_image.filename}"
+        hotel_main_image.save(image_path)
+    else:
+        image_path = None  # No image uploaded
+
+    try:
+        # Construct SQL query based on provided data
+        update_query = "UPDATE hotel_info SET "
+        update_values = []
+
+        if hotel_name:
+            update_query += "hotel_name = %s, "
+            update_values.append(hotel_name)
+        if hotel_location:
+            update_query += "hotel_loc = %s, "
+            update_values.append(hotel_location)
+        if hotel_rating:
+            update_query += "review_score = %s, "
+            update_values.append(hotel_rating)
+        if hotel_description:
+            update_query += "description = %s, "
+            update_values.append(hotel_description)
+        if image_path:
+            update_query += "main_image = %s, "
+            update_values.append(image_path)
+
+        # Remove trailing comma and space
+        update_query = update_query.rstrip(", ")
+        update_query += " WHERE hotel_id = %s"
+        update_values.append(hotel_id)
+
+        # Execute the update query
+        cursor.execute(update_query, tuple(update_values))
+        conn.commit()
+
+        return jsonify({"status": "success", "message": "Hotel information updated successfully"})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)})
