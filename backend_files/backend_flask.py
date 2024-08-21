@@ -933,3 +933,74 @@ def update_hotel():
         return jsonify({"status": "success", "message": "Hotel information updated successfully"})
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)})
+    
+@app.route('/update_account', methods=['POST'])
+def update_account():
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    user_id = session.get('user_id') 
+
+    # Get form data
+    name = request.form.get('name')
+    email = request.form.get('email')
+    password = request.form.get('password')
+
+    try:
+        # Construct SQL query based on provided data
+        update_query = "UPDATE visitor SET "
+        update_values = []
+
+        if name:
+            update_query += "username = %s, "
+            update_values.append(name)
+        if email:
+            update_query += "email = %s, "
+            update_values.append(email)
+        if password:
+            # Encrypt the password before updating
+            encrypted_password = bcrypt.generate_password_hash(password).decode('utf-8')  # Replace this with your encryption method
+            update_query += "password = %s, "
+            update_values.append(encrypted_password)
+
+        # Check if any fields were provided
+        if not update_values:
+            return jsonify({"status": "error", "message": "No updates provided"})
+
+        # Remove trailing comma and space
+        update_query = update_query.rstrip(", ")
+        update_query += " WHERE id = %s"
+        update_values.append(user_id)
+
+        # Execute the update query for the visitor table
+        cursor.execute(update_query, tuple(update_values))
+        conn.commit()
+
+        # Update the listed_user table similarly
+        update_query_listed_user = "UPDATE listed_user SET "
+        update_values_listed_user = []
+
+        if name:
+            update_query_listed_user += "username = %s, "
+            update_values_listed_user.append(name)
+        if email:
+            update_query_listed_user += "email = %s, "
+            update_values_listed_user.append(email)
+        if password:
+            # Encrypt the password before updating
+            encrypted_password = bcrypt.generate_password_hash(password).decode('utf-8')  # Replace this with your encryption method
+            update_query_listed_user += "password = %s, "
+            update_values_listed_user.append(encrypted_password)
+      
+        # Remove trailing comma and space
+        if update_values_listed_user:  # Ensure there is something to update
+            update_query_listed_user = update_query_listed_user.rstrip(", ")
+            update_query_listed_user += " WHERE listeduser_id = %s"
+            update_values_listed_user.append(user_id)
+
+            cursor.execute(update_query_listed_user, tuple(update_values_listed_user))
+            conn.commit()
+
+        return jsonify({"status": "success", "message": "Account information updated successfully"})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)})
