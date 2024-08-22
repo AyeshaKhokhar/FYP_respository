@@ -1004,3 +1004,97 @@ def update_account():
         return jsonify({"status": "success", "message": "Account information updated successfully"})
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)})
+
+@app.route('/partner_panel')
+def partner_panel():
+
+    print(session['user_id'])
+    user_id = session['user_id']
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    try:
+        action = request.args.get('action')
+        hotel_id = request.args.get('hotel_id')
+
+        if action == 'delete' and hotel_id:
+            print('enetered in del')
+            # Get user_id from hotel_info
+            cursor.execute('SELECT user_id FROM hotel_info WHERE hotel_id = %s', (hotel_id,))
+            hotel_info = cursor.fetchone()
+
+            if hotel_info:
+                owner_id = hotel_info['user_id']
+                print('owneris: ', owner_id)
+                # Delete hotel record
+                cursor.execute('DELETE FROM hotel_info WHERE hotel_id = %s', (hotel_id,))
+                conn.commit()
+                print('succes del')
+                # Notify admin
+                # Implement your email notification logic here
+                print(f'Notify admin: Hotel with ID {hotel_id} deleted.')
+
+                # Check if there are other hotels listed by this user
+                cursor.execute('SELECT COUNT(*) AS hotel_count FROM hotel_info WHERE user_id = %s', (owner_id,))
+                hotel_count = cursor.fetchone()['hotel_count']
+                print("countis:", hotel_count)
+                if hotel_count == 0:      
+
+                    # Notify admin about user account deletion
+                    cursor.execute('SELECT username FROM listed_user WHERE listeduser_id = %s', (owner_id,))
+                    user_info = cursor.fetchone()
+                    print('finduser')
+                    if user_info:
+                        print(f'Notify admin: User with ID {owner_id} ({user_info["username"]}) deleted all hotels.')
+                        
+                    # No more hotels listed by this user
+                    cursor.execute('DELETE FROM listed_user WHERE listeduser_id = %s', (owner_id,))
+                    conn.commit()
+                    print('dellist')
+                    message = 'All listed hotels deleted. You are no longer a partner.'
+                    # Redirect to home page with alert
+                    return jsonify({'status': 'success', 'message': message, 'redirect': '/'})
+                else:
+                    message = 'Hotel deleted successfully.'
+                    return jsonify({'status': 'success', 'message': message})
+
+            return jsonify({'status': 'error', 'message': 'Hotel not found.'})
+        
+    except Exception as e:
+        print(f"Exception: {e}")
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+    cursor.execute('SELECT COUNT(*) AS total_hotels FROM hotel_info WHERE user_id = %s', (user_id,))
+    total_listed_hotels = cursor.fetchone()
+    
+    cursor.execute('SELECT COUNT(*) AS pending_total_hotels FROM property WHERE user_id = %s', (user_id,))
+    pending_listed_hotels = cursor.fetchone()
+
+    cursor.execute('SELECT denied_list FROM listed_user WHERE listeduser_id = %s', (user_id,))
+    denied_listed_hotels = cursor.fetchone()
+    print('deny is: ', denied_listed_hotels['denied_list'])
+
+    cursor.execute('SELECT approved_list FROM listed_user WHERE listeduser_id = %s', (user_id,))
+    approved_listed_hotels = cursor.fetchone()
+    print('apprve is: ', approved_listed_hotels['approved_list'])
+
+    cursor.execute('SELECT * FROM hotel_info WHERE user_id = %s', (user_id,))
+    listed_hotels_details = cursor.fetchall()
+
+    for hotel in listed_hotels_details:
+        print(hotel['hotel_name'])
+        print(hotel['hotel_loc'])
+        print(hotel['review_score'])
+
+    hotel_names = [hotel['hotel_name'] for hotel in listed_hotels_details]
+    review_scores = [hotel['review_score'] for hotel in listed_hotels_details]
+
+    return render_template('partner_panel.html',
+                           total_listed_hotels=total_listed_hotels,
+                           listed_hotels_details=listed_hotels_details,
+                           pending_listed_hotels=pending_listed_hotels,
+                           denied_listed_hotels=denied_listed_hotels,
+                           approved_listed_hotels=approved_listed_hotels,
+                           hotel_names=hotel_names,
+                           review_scores=review_scores
+                           )
