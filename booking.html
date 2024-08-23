@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Booking Form</title>
+    <link rel="stylesheet" href="booking.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+
+    <!-- Sticky Bar -->
+    <div class="sticky-bar">
+        <div class="logo"><img src="logo1.png" alt=""></div>
+        <div class="top-right">
+            <div class="account-icon">Account</div>
+            <span>PKR</span>
+            <button class="list-hotel">List Your Hotel</button>
+        </div>
+    </div>
+
+    <!-- Booking Form Container -->
+    <div class="booking-container">
+        <!-- Left Side -->
+        <div class="left-side">
+            <div class="hotel-info-box">
+                <h3>Hotel Details</h3>
+                <h4>Hotel Name</h4>
+                <div class="rating-stars">★★★★☆</div>
+                <p class="rating-score">Rating Score: 4.5/5</p>
+                <p class="hotel-location">Hotel Location</p>
+                <p class="total-reviews">123 Reviews</p>
+                <div class="hotel-facilities">
+                    <span><i class="fas fa-wifi"></i> Wi-Fi</span>
+                    <span><i class="fas fa-swimming-pool"></i> Pool</span>
+                    <span><i class="fas fa-parking"></i> Parking</span>
+                    <span><i class="fas fa-dumbbell"></i> Gym</span>
+                </div>
+            </div>
+            <div class="booking-details-box">
+                <h3>Booking Details</h3>
+                
+                <p>Check-in: 12-Aug-2024</p>
+                <p>Check-out: 15-Aug-2024</p>
+                <p>Total Nights: 3</p>
+            </div>
+            <div class="total-price-box">
+                <h3>Price Summary</h3>
+                <div class="price-summary">
+                    <div class="room-item">
+                        <p class="room-name">Deluxe Room</p>
+                        <p class="room-quantity">x2</p>
+                        <p class="room-price">PKR 5,000 each</p>
+                    </div>
+                    <div class="room-item">
+                        <p class="room-name">Suite</p>
+                        <p class="room-quantity">x1</p>
+                        <p class="room-price">PKR 10,000 each</p>
+                    </div>
+                    <!-- <hr> -->
+                    <div class="total-price">
+                        <p class="total-label">Total Price:</p>
+                        <p class="total-value">PKR 20,000</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side -->
+        <div class="right-side">
+            <div class="booking-form">
+                <h3>Booking Form</h3>
+                <!-- <div class="email-section">
+                    <span>Email: user@example.com</span>
+                </div> -->
+                <label for="first-name">First Name:</label>
+                <input type="text" id="first-name" name="first-name">
+                <label for="last-name">Last Name:</label>
+                <input type="text" id="last-name" name="last-name">
+                <label for="booking-email">Email:</label>
+                <input type="email" id="booking-email" name="booking-email">
+                <hr>
+                <h4>Address Details</h4>
+                <label for="address">Address:</label>
+                <input type="text" id="address" name="address">
+                <label for="country">Country:</label>
+                <select id="country" name="country">
+                    <option value="pakistan" selected>Pakistan</option>
+                </select>
+                <label for="city">City:</label>
+                <input type="text" id="city" name="city">
+                <label for="postal-code">Postal Code:</label>
+                <input type="text" id="postal-code" name="postal-code">
+                <label for="phone-number">Phone Number:</label>
+                <input type="text" id="phone-number" name="phone-number" placeholder="+92">
+                <hr>
+                <h4>Booking For</h4>
+                <label>Who are you booking for?</label>
+                <div class="lab">
+                    <input type="radio" id="main-guest" name="booking-for" value="main-guest">
+                    <label for="main-guest">I am the main guest</label>
+                </div>
+                <div>
+                    <input type="radio" id="someone-else" name="booking-for" value="someone-else">
+                    <label for="someone-else">Booking is for someone else</label>
+                </div>
+            </div>
+            <div class="room-details">
+                <h3>Room Details</h3>
+               <h4>Selected Rooms-</h4>
+
+                <div class="room-names-section">
+                    <div class="room-names">Deluxe Room</div>
+                    <div class="room-names">Suite</div>
+                    <div class="room-names">Standard Room</div>
+                    <div class="room-names">Executive Room</div>
+                </div>
+                <div class="room-facilities">
+                    <span><i class="fas fa-tv"></i> TV</span>
+                    <span><i class="fas fa-wind"></i> AC</span>
+                    <span><i class="fas fa-glass-cheers"></i> Mini-bar</span>
+                    <span><i class="fas fa-concierge-bell"></i> Room Service</span>
+                </div>
+                <p>Total select Rooms: 2</p>
+                <!-- <p>2</p> -->
+                <label  for="booker-name">Booker's Full Name:</label>
+                <input type="text" id="booker-name" name="booker-name">
+            </div>
+            <button class="payment-button">Go to Payment</button>
+        </div>
+    </div>
+
+</body>
+</html>
