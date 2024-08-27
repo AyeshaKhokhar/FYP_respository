@@ -9,9 +9,31 @@ import os
 from werkzeug.utils import secure_filename
 import base64
 from decimal import Decimal
+from tensorflow.keras.preprocessing.text import Tokenizer
+from tensorflow.keras.preprocessing.sequence import pad_sequences
+from tensorflow.keras.models import load_model
+import json
+import pickle
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
+
+# Load the model
+model = load_model('sentiment_model.keras')
+
+# Load the tokenizer
+with open('tokenizer.pkl', 'rb') as handle:
+    tokenizer = pickle.load(handle)
+    
+def predict_sentiment(score):
+    sentiment = "Positive" if score > 0.5 else "Negative"
+    return sentiment
+
+def predict_sentiment_score(review):
+    sequence = tokenizer.texts_to_sequences([review])
+    padded_sequence = pad_sequences(sequence, maxlen = 200)
+    prediction = model.predict(padded_sequence)
+    return prediction[0][0].round(1)
 
 @app.route('/')
 def home():
@@ -1099,6 +1121,11 @@ def partner_panel():
                            hotel_names=hotel_names,
                            review_scores=review_scores
                            )
+
+def calculate_sentiment_score(review_text):
+    review = review_text
+    score = predict_sentiment_score(review)
+    return round(score * 3, 1) 
 
 @app.route('/submit_review', methods=['POST'])
 def submit_review():
