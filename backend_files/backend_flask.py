@@ -8,6 +8,7 @@ from flask_bcrypt import Bcrypt
 import os
 from werkzeug.utils import secure_filename
 import base64
+from decimal import Decimal
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
@@ -1098,3 +1099,79 @@ def partner_panel():
                            hotel_names=hotel_names,
                            review_scores=review_scores
                            )
+
+@app.route('/submit_review', methods=['POST'])
+def submit_review():
+    hotel_id = request.form.get('hotel_id')
+    review_text = request.form.get('review-text')
+   
+    print('hotel is: ',hotel_id)
+    if 'user_id' not in session:
+        print('not in session redirecting it')
+        error_message = "First you need to login"
+        return jsonify({'status': 'redirect', 'url': url_for('login', error_message=error_message, comes='review', hotel=hotel_id), 'error_message': error_message})
+        
+    user_id = session['user_id']
+    print('user: ', user_id)
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    
+        # Fetch reviewer's name from visitors table
+    cursor.execute('SELECT username FROM visitor WHERE id = %s', (user_id,))
+    user = cursor.fetchone()
+    if not user:
+        return 'User not found', 404
+
+    reviewer_name = user['username']
+
+    sentiment_score = calculate_sentiment_score(review_text)
+    score = predict_sentiment_score(review_text)
+    sentiment = predict_sentiment(score)
+        
+    print('score: ', sentiment_score)
+    print('sentiment',sentiment)
+
+        # Fetch hotel details from hotel_info
+    cursor.execute('SELECT review_score, hotel_name FROM hotel_info WHERE hotel_id = %s', (hotel_id,))
+    hotel = cursor.fetchone()
+    if not hotel:
+        cursor.close()
+        conn.close()
+        return 'Hotel not found', 404
+
+    hotel_name = hotel['hotel_name']
+
+        # Insert the new review into hotel_reviews
+    cursor.execute("""
+        INSERT INTO hotel_review_data1 (reviewerName, reviewTime, review, hotelName, sentiment)
+        VALUES (%s, %s, %s, %s, %s)
+    """, (reviewer_name, 'now', review_text, hotel_name, sentiment))
+        
+    cursor.execute('SELECT COUNT(review) AS total_reviews FROM hotel_review_data1 WHERE hotelName = %s', (hotel_name,))
+    total_hotel_reviews = cursor.fetchone()
+
+    existing_review_count = total_hotel_reviews['total_reviews']
+    print('total: ', existing_review_count)
+    existing_avg_score = hotel['review_score']
+    print('review: ', existing_avg_score)
+
+        # Convert Decimal to float if necessary
+    if isinstance(existing_avg_score, Decimal):
+        existing_avg_score = float(existing_avg_score)
+
+        # formula for new average score of hotel
+    new_avg_score = ((existing_avg_score * existing_review_count) + sentiment_score) / (existing_review_count + 1)
+
+    new_review_count = existing_review_count + 1
+    
+    cursor.execute(
+        "UPDATE hotel_info SET review_score = %s, total_review = %s WHERE hotel_name = %s",
+        (new_avg_score, new_review_count, hotel_name)
+    )
+    conn.commit()
+        
+    cursor.close()
+    conn.close()
+        
+    return jsonify({'status': 'success', 'message': 'Review submitted successfully!'})
