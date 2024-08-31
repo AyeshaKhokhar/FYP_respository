@@ -14,6 +14,10 @@ from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.models import load_model
 import json
 import pickle
+import random
+import smtplib
+import time
+from email.message import EmailMessage
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
@@ -1202,3 +1206,45 @@ def submit_review():
     conn.close()
         
     return jsonify({'status': 'success', 'message': 'Review submitted successfully!'})
+
+# Global variables
+current_otp = None
+otp_email = None
+otp_sent_time = None
+
+@app.route('/send_otp', methods=['POST'])
+def send_otp():
+    global current_otp, otp_email, otp_sent_time
+
+    # Extract form data
+    data = request.form
+    email = data.get('email')
+
+    if email:
+        # Check if OTP is still valid
+        if current_otp and otp_sent_time and time.time() - otp_sent_time < 60:
+            return jsonify({'success': False, 'error': 'OTP has already been sent. Please wait before requesting a new one.'})
+
+        # Generate OTP
+        current_otp = ''.join([str(random.randint(0, 9)) for _ in range(6)])
+        otp_email = email
+        otp_sent_time = time.time()
+
+        # Send OTP via email
+        try:
+            server = smtplib.SMTP('smtp.gmail.com', 587)
+            server.starttls()
+            from_mail = 'ayesharasheed6949@gmail.com'
+            server.login(from_mail, 'bfpu ethh rall amui')
+            msg = EmailMessage()
+            msg['Subject'] = "OTP Verification"
+            msg['From'] = from_mail
+            msg['To'] = email
+            msg.set_content("Your OTP is: " + current_otp)
+            server.send_message(msg)
+            server.quit()
+            return jsonify({'success': True})
+        except Exception as e:
+            return jsonify({'success': False, 'error': str(e)})
+
+    return jsonify({'success': False, 'error': 'Email is required'})
