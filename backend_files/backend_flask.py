@@ -1248,3 +1248,18 @@ def send_otp():
             return jsonify({'success': False, 'error': str(e)})
 
     return jsonify({'success': False, 'error': 'Email is required'})
+
+@app.route('/verify_otp', methods=['POST'])
+def verify_otp():
+    global current_otp, otp_sent_time
+
+    data = request.get_json()
+    otp = data.get('otp')
+
+    if otp == current_otp:
+        if time.time() - otp_sent_time <= 60:
+            return jsonify({'success': True})
+        else:
+            return jsonify({'success': False, 'error': 'OTP expired. Please request a new one.'})
+    else:
+        return jsonify({'success': False, 'error': 'Invalid OTP. Please try again.'})
