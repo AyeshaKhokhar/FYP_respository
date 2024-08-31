@@ -1263,3 +1263,32 @@ def verify_otp():
             return jsonify({'success': False, 'error': 'OTP expired. Please request a new one.'})
     else:
         return jsonify({'success': False, 'error': 'Invalid OTP. Please try again.'})
+    
+
+@app.route('/resend_otp', methods=['POST'])
+def resend_otp():
+    global current_otp, otp_email, otp_sent_time
+
+    if otp_email:
+        # Generate new OTP
+        current_otp = ''.join([str(random.randint(0, 9)) for _ in range(6)])
+        otp_sent_time = time.time()
+
+        # Send new OTP via email
+        try:
+            server = smtplib.SMTP('smtp.gmail.com', 587)
+            server.starttls()
+            from_mail = 'ayesharasheed6949@gmail.com'
+            server.login(from_mail, 'bfpu ethh rall amui')
+            msg = EmailMessage()
+            msg['Subject'] = "OTP Verification"
+            msg['From'] = from_mail
+            msg['To'] = otp_email
+            msg.set_content("Your new OTP is: " + current_otp)
+            server.send_message(msg)
+            server.quit()
+            return jsonify({'success': True})
+        except Exception as e:
+            return jsonify({'success': False, 'error': str(e)})
+
+    return jsonify({'success': False, 'error': 'No OTP email found'})
