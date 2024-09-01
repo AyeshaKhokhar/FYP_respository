@@ -1,7 +1,7 @@
 // Function to show the respective section
 function showSection(sectionId) {
     // Hide all sections
-    document.querySelectorAll('.form-container, #dashboard-section, #your-hotels-section').forEach(section => {
+    document.querySelectorAll('.form-container, #dashboard-section, #your-hotels-section, #your-booking-section').forEach(section => {
         section.style.display = 'none';
     });
     // Show the selected section
@@ -43,3 +43,5 @@ const ratingGraph = new Chart(
 
 // Initial display setup
 showSection('dashboard-section');
+
+
