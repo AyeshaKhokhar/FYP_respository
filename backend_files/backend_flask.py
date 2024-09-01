@@ -18,9 +18,17 @@ import random
 import smtplib
 import time
 from email.message import EmailMessage
+from datetime import datetime
+import stripe
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
+app.config['UPLOAD_FOLDER'] = 'static/img'
+
+
+stripe.api_key = 'sk_test_51Ps4cTRv1MHEBgdhwsknmIQXQfe7HJRnNDlfVxmps0B62XyA1cwQZxHVORF6sgnMutHmx7korwQRAdvSkh2qRZnG00s0Rzk3R9'
+stripe_public_key = 'pk_test_51Ps4cTRv1MHEBgdhtXbOmPTvX38jaL1D4txhYatHvyzfRhPKvMiuoewTVfnl9cwpWvRTSFQ4rEQLOQMXDAY7FDqh00WK258tPK'
+print('stripe_public_key is:', stripe_public_key)
 
 # Load the model
 model = load_model('sentiment_model.keras')
@@ -1292,3 +1300,163 @@ def resend_otp():
             return jsonify({'success': False, 'error': str(e)})
 
     return jsonify({'success': False, 'error': 'No OTP email found'})
+
+@app.route('/booking', methods=['POST'])
+def booking():
+    hotelId = request.form.get('hotelId')
+    print('id is: ', hotelId)
+
+    if 'user_id' not in session:
+        return redirect(url_for('login', error_message='First you need to login.', comes='booking', hotel=hotelId))
+    
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+        
+    selected_rooms = request.form.get('selectedRooms')
+
+    checkin_date_str = request.form.get('checkinDate')
+    checkout_date_str = request.form.get('checkoutDate')
+
+    # Convert the date strings to datetime objects
+    checkinDate = datetime.strptime(checkin_date_str, '%Y-%m-%d')
+    checkoutDate = datetime.strptime(checkout_date_str, '%Y-%m-%d')
+
+    # Calculate the difference in days
+    num_days = (checkoutDate - checkinDate).days
+    print('total nights: ', num_days)
+    
+    formatted_checkinDate = checkinDate.strftime('%Y-%m-%d')
+    formatted_checkoutDate = checkoutDate.strftime('%Y-%m-%d')
+
+    if selected_rooms:
+        selected_rooms = json.loads(selected_rooms)
+        
+        total_price_sum = 0  # Variable to store the sum of all total prices
+        total_quantity = 0  # Variable to store the total quantity of all rooms
+        room_name = None
+
+        for room in selected_rooms:
+            room_name = room['name']
+            room_quantity = room['quantity']
+
+            # Query the room price from the room_detail table
+            cursor.execute("""
+                SELECT room_price 
+                FROM room_details
+                WHERE hotel_id = %s AND room_name = %s
+            """, (hotelId, room_name))
+            
+            result = cursor.fetchone()
+            if result:
+                room_price = result['room_price']
+                room['price'] = room_price  # Add price to the room dictionary
+                room['total_price'] = room_quantity * room_price  # Calculate total price for the quantity
+                total_price_sum += room['total_price']  # Add to the total price sum
+                total_quantity += room_quantity  # Add to the total quantity
+
+            print(f"Room: {room_name}, Quantity: {room_quantity}, Price per Room: {room.get('price', 'N/A')}, Total Price: {room.get('total_price', 'N/A')}")
+        
+        night_total_price_sum = total_price_sum * num_days #to calculate total proce according to the nights user choose to stay
+
+        # Fetch hotel details
+        cursor.execute('''
+            SELECT hotel_id, hotel_name, facilities, review_score, total_review, hotel_loc
+            FROM hotel_info
+            WHERE hotel_id = %s
+        ''', (hotelId,))
+        hotel = cursor.fetchone()
+        
+        if hotel:
+            facilities_str = hotel['facilities']
+            
+            # Split facilities string into a list
+            facilities = facilities_str.split('  ')
+            
+            # Fetch all facility icons at once
+            placeholders = ', '.join(['%s'] * len(facilities))
+            cursor.execute(f'''
+                SELECT icon_name, icon_pic
+                FROM icon_detail
+                WHERE icon_name IN ({placeholders})
+            ''', tuple(facilities))
+            icons = cursor.fetchall()
+            
+            # Create a dictionary for easy lookup
+            facility_icons = {icon['icon_name']: icon['icon_pic'] for icon in icons}
+            print(facility_icons)
+            # Prepare the facility list for the template
+            facility_icon_list = []
+            for facility in facilities:
+                if facility in facility_icons:
+                    facility_icon_list.append({
+                        'name': facility,
+                        'pic': facility_icons[facility]
+                    })
+        
+        # cursor.close()
+        # conn.close()
+
+        # Fetch the details of the specific room by its name
+        # conn = get_db_connection()
+        try:
+            cursor.execute('''
+                SELECT room_name, room_price, room_desc, bed_quantity, room_fac
+                FROM room_details
+                WHERE room_name = %s
+            ''', (room_name,))
+
+            room = cursor.fetchone()
+
+            if room:
+                cursor.fetchall()  # Discard any remaining rows from the previous query
+
+                print('room_name is:', room['room_name'])
+                room_facilities_str = room['room_fac']
+                room_facility_icon_list = []
+
+                print('facilities: ', room_facilities_str)
+
+                if room_facilities_str:
+                    room_facilities = [facility.strip() for facility in room_facilities_str.split(',')]
+
+                    if room_facilities:
+                        placeholders = ', '.join(['%s'] * len(room_facilities))
+                        query = f'''
+                            SELECT icon_name, icon_pic
+                            FROM icon_detail
+                            WHERE icon_name IN ({placeholders})
+                        '''
+
+                        cursor.execute(query, tuple(room_facilities))
+                        room_icons = cursor.fetchall()
+
+                        room_facility_icons = {icon['icon_name'].strip(): icon['icon_pic'] for icon in room_icons}
+
+                        room_facility_icon_list = [
+                            {'name': facility, 'pic': room_facility_icons.get(facility)}
+                            for facility in room_facilities if facility in room_facility_icons
+                        ]
+
+                    print('Room facilities with icons:', room_facility_icon_list)   
+
+        except mysql.connector.Error as err:
+            print(f"Error: {err}")
+        finally:
+            # Close the cursor after all operations
+            cursor.close()
+
+
+        return render_template('booking.html', 
+                               selected_rooms=selected_rooms,
+                               hotel = hotel,
+                               facilities = facility_icon_list,
+                               room_facilities_list = room_facility_icon_list,
+                               checkinDate = formatted_checkinDate,
+                               checkoutDate= formatted_checkoutDate,
+                               num_days = num_days,
+                               total_room_price = total_price_sum,
+                               total_night_price = night_total_price_sum,
+                               total_quantity = total_quantity,
+                               public_key = stripe_public_key)
+    else:
+        return "No rooms selected", 400
