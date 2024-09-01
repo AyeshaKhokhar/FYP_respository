@@ -113,12 +113,12 @@ body {
 
 .checkbox-group label {
     display: flex;
-    /* align-items: center; */
-    /* Adjust spacing between checkboxes if needed */
 }
 
 .form-container {
+    align-items: center;
     background-color: #fff;
+    /* width: 85%; */
     padding: 30px;
     border: 1.5px solid #d68b49;
     border-radius: 10px;
@@ -127,7 +127,26 @@ body {
 
 .form-container h3 {
     margin-top: 0;
-    font-size: 20px;
+    font-size: 22px;
+    color: #fff;
+    /* border: 1.5px solid #d68b49; */
+    border-radius: 15px;
+    width: 35%;
+    text-align: center;
+    background-color: #d68b49;
+    padding: 5px;
+}
+h3{
+    margin-top: 0;
+    font-size: 24px;
+    color: #000000;
+    padding-top: 8px; 
+
+}
+p{
+    font-size: 13px;
+    /* margin-bottom: 4px; */
+    /* padding: 5px; */
 }
 
 .form-container label {
@@ -141,11 +160,14 @@ body {
 .form-container select,
 .form-container file
   {
-    width: 100%;
+    width: 95%;
     padding: 10px;
     margin-bottom: 10px;
     border: 1px solid #ccc;
     border-radius: 5px;
+}
+.form-container select{
+    width: 30%;
 }
 
 .form-container button {
@@ -187,10 +209,13 @@ button i {
 }
 
 #hotels-table th {
+    font-size: 15px;
     background-color: #d68b49;
     color: #fff;
 }
-
+#hotels-table td{
+    font-size: 14px;
+}
 button {
     background-color: #d68b49;
     color: #fff;
@@ -204,4 +229,70 @@ button {
     background-color: #c81906; /* Red color for 'View' button */
     color: #fff;
 }
+.paid-btn {
+    background-color: #57b107; /* Red color for 'View' button */
+    color: #fff;
+}
+.room-group label {
+    display: block;
+    margin-top: 10px;
+}
 
+.checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.checkbox-group label {
+    display: flex;
+    align-items: center;
+}
+
+.checkbox-group input[type="checkbox"] {
+    margin-right: 5px;
+}
+
+button.addroom {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 15px;
+    cursor: pointer;
+}
+button.addroom:hover{
+    background-color: #179201;
+}
+
+.required-star {
+    color: red;
+    margin-left: 5px;
+}
+.room-group{
+    margin-bottom: 20px;
+    padding: 10px;
+    width: 95%;
+    border: 1px solid #e19405;
+    border-radius: 5px;
+    /* background-color: #fffcf6; */
+}
+
+button.deleteRoomButton {
+    margin-top: 10px;
+    background-color: #f44336; /* Red color for delete button */
+    color: white;
+    border: none;
+    padding: 10px 10px;
+    cursor: pointer;
+    border-radius: 15px;
+}
+
+button.deleteRoomButton:hover {
+    background-color: #d32f2f;
+}
+.room-group h4{
+    font-size: 20px;
+    color: #d37625;
+}
