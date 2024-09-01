@@ -1460,3 +1460,85 @@ def booking():
                                public_key = stripe_public_key)
     else:
         return "No rooms selected", 400
+    
+@app.route('/create-checkout-session', methods=['POST'])
+def create_checkout_session():
+    try:
+        data = request.json  # Get JSON data from the request
+        amount = int(data.get('amount'))  
+        amount = amount * 100  # Convert to smallest currency unit (e.g., cents for USD)
+
+        hotelName = data.get('hotelName')
+        rooms = data.get('rooms')
+        email=data.get('email')
+        checkinDate = data.get('checkinDate')
+        checkoutDate = data.get('checkoutDate')
+        name=data.get('name')
+
+        session['totalPrice'] = amount
+        session['hotelName'] = hotelName
+        session['roomQuantity'] = rooms
+        session['emailSend'] = email
+        session['checkin_Date'] = checkinDate
+        session['checkout_Date'] = checkoutDate
+        session['bookername'] = name
+
+        if amount is None or amount <= 0:
+            return jsonify(error="Invalid amount"), 400
+      
+        customer = stripe.Customer.create(
+            email=email,
+            name=name
+        )
+
+          # Create an invoice in Stripe after the session is created
+        invoice_item = stripe.InvoiceItem.create(
+            customer=customer.id,
+            amount=amount,
+            currency='pkr',
+            description='Hotel Booking'
+        )
+
+        invoice = stripe.Invoice.create(
+            customer=customer.id,
+            auto_advance=True,  # Auto-finalize the invoice
+        )
+
+        stripe.Invoice.finalize_invoice(invoice.id)
+
+        # Create a Checkout Session
+        success_url = url_for('home', _external=True) + '?payment_status=success&session_id={CHECKOUT_SESSION_ID}'
+        checkout_session = stripe.checkout.Session.create(
+            customer=customer.id,  # Link the customer to the session
+            payment_method_types=['card'],
+            line_items=[
+                {
+                    'price_data': {
+                        'currency': 'pkr',
+                        'product_data': {
+                            'name': 'Hotel Booking',
+                        },
+                        'unit_amount': amount,
+                    },
+                    'quantity': 1,
+                },
+            ],
+            mode='payment',
+            success_url=success_url,
+            cancel_url=url_for('cancel', _external=True),
+            invoice_creation={'enabled': True},  # This will automatically create an invoice
+        )
+
+        # Store the session in the database
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("""
+        INSERT INTO payment (session_id, amount, currency, status)
+        VALUES (%s, %s, %s, %s)
+        """, (checkout_session.id, amount, 'pkr', 'created'))
+        conn.commit()
+
+        return jsonify(id=checkout_session.id)
+    
+    except Exception as e:
+        return jsonify(error=str(e)), 403
