@@ -16,8 +16,9 @@
   <!-- Registration Form Section -->
   <div class="register-container">
     
-    <form class="register-form">
+    <form class="register-form" id="registerForm">
       <h2>Register Now</h2>
+      
       <label for="email">Email address</label>
       <input type="email" id="email" name="email" placeholder="Enter your email address" required>
       <label for="email">Password</label>
@@ -43,6 +44,110 @@
       </footer> -->
     </form>
   </div>
+
+  <div id="otpModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Enter OTP</h2>
+        <p>Please enter the 6-digit OTP sent to your email.</p>
+        <form id="otpForm">
+            <div class="otp-inputs">
+                <input type="text" id="otp1" name="otp1" maxlength="1" required>
+                <input type="text" id="otp2" name="otp2" maxlength="1" required>
+                <input type="text" id="otp3" name="otp3" maxlength="1" required>
+                <input type="text" id="otp4" name="otp4" maxlength="1" required>
+                <input type="text" id="otp5" name="otp5" maxlength="1" required>
+                <input type="text" id="otp6" name="otp6" maxlength="1" required>
+            </div>
+            <button type="submit" class="btn-verify">Verify</button>
+        </form>
+    </div>
+</div>
+
+<script>
+  // Get the modal
+// Get the modal
+var modal = document.getElementById("otpModal");
+
+// Get the <span> element that closes the modal
+var span = document.getElementsByClassName("close")[0];
+
+// Get the forms
+var registerForm = document.getElementById("registerForm");
+var otpForm = document.getElementById("otpForm");
+
+// Array of OTP input elements
+var otpInputs = document.querySelectorAll('.otp-inputs input');
+
+// When the user submits the registration form
+registerForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    // Extract form data
+    var formData = new FormData(registerForm);
+
+    // Simulate AJAX request to server for OTP generation
+    // Replace this with actual AJAX call in real use case
+    setTimeout(function () {
+        // Simulate successful registration and OTP sent
+        console.log("Form submitted");
+        modal.style.display = "block"; // Open the OTP modal
+        otpInputs[0].focus(); // Focus on the first OTP input
+    }, 1000);
+});
+
+// When the user clicks on <span> (x), close the modal
+span.onclick = function () {
+    modal.style.display = "none";
+};
+
+// When the user clicks anywhere outside of the modal, close it
+window.onclick = function (event) {
+    if (event.target == modal) {
+        modal.style.display = "none";
+    }
+};
+
+// Handle input focus and move to next field
+otpInputs.forEach((input, index) => {
+    input.addEventListener('input', function () {
+        if (this.value.length === this.maxLength) {
+            if (index < otpInputs.length - 1) {
+                otpInputs[index + 1].focus();
+            }
+        }
+    });
+
+    input.addEventListener('keydown', function (e) {
+        if (e.key === 'Backspace' && this.value.length === 0 && index > 0) {
+            otpInputs[index - 1].focus();
+        }
+    });
+});
+
+// When the user submits the OTP form
+otpForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    // Collect OTP from all input fields
+    let otp = Array.from(otpInputs).map(input => input.value).join('');
+    console.log("OTP submitted: " + otp);
+
+    // Simulate AJAX request to server for OTP verification
+    // Replace this with actual AJAX call in real use case
+    setTimeout(function () {
+        // Simulate successful OTP verification
+        if (otp === '123456') { // Replace with actual validation logic
+            alert('OTP verified successfully!');
+            modal.style.display = "none";
+        } else {
+            alert('Invalid OTP. Please try again.');
+            otpInputs[0].focus();
+        }
+    }, 1000);
+});
+
+</script>
 
   <!-- Footer -->
   
